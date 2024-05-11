@@ -1,4 +1,5 @@
 --!strict
+--#region Defaults
 local EnemyTemplates = {}
 local Defaults = {
     MaxHealth = 5,
@@ -8,7 +9,9 @@ local Defaults = {
     Waypoint = 2,
 	Distance = 0
 }
+--#endregion
 
+--#region Functions
 local function CreateEnemy(name: string, customValues: {}?)
 	local newEnemy = {}
 
@@ -24,9 +27,12 @@ local function CreateEnemy(name: string, customValues: {}?)
 
 	return newEnemy
 end
+--#endregion
 
+--#region Registers
 CreateEnemy("Basic")
 CreateEnemy("Fast", {MaxHealth = 3, Speed = 16})
 CreateEnemy("Big", {MaxHealth = 20, Speed = 5})
+--#endregion
 
 return EnemyTemplates

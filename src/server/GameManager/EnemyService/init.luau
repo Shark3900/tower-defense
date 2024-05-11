@@ -1,110 +1,146 @@
 --!strict
-
-local EnemyTemplates = require(script.EnemyTemplates)
-local Maps = require(script.Maps)
-local Enemy = {}
-Enemy.__index = Enemy
-
-export type Enemy = {
-	--Properties
-	Part: Part,
-	MaxHealth: number,
-	Health: number,
-	Speed: number,
-	SpeedModifier: number,
-	Value: number,
-	Waypoint: number,
-	Distance: number,
-	Index: number,
-	HealthIndex: number,
-	DistanceIndex: number,
-	--Flags
-	Stunned: boolean,
-	StunTimer: number,
-	Slowed: boolean,
-	SlowTimer: number,
-	Boss: boolean,
-	Armored: boolean,
-	Stealth: boolean,
-	Flying: boolean,
+--#region Requires & Types
+local Enemy = require(script.Enemy)
+local Waves = require(script.Waves)
+type EnemyService = {
+	--Variables
+	Enemies: {Enemy.Enemy},
+	HealthSort: {Enemy.Enemy},
+	DistanceSort: {Enemy.Enemy},
+	EnemyQueue: {Enemy.Enemy},
+	EnemyRemoveQueue: {Enemy.Enemy},
+	--Local Functions
+	sortEnemies: () -> ({Enemy.Enemy}),
+	sortHealth: () -> ({Enemy.Enemy}),
+	sortDistance: () -> ({Enemy.Enemy}),
 	--Functions
-	new: (enemyName: string) -> ({Enemy}),
-	Destroy: (self: Enemy) -> (),
-	Move: (self: Enemy, deltaTime: number) -> ({Enemy}?),
-	ChangeHealth: (self: Enemy, value: number) -> ({Enemy}?)
+	nextWave: () -> ({Enemy.Enemy}?),
+	spawnEnemy: () -> (),
+	moveEnemies: (deltaTime: number) -> (),
+	removeEnemies: () -> ()
 }
+--#endregion
 
-function Enemy.new(enemyName: string)
-	local self = table.clone(EnemyTemplates[enemyName])
-	self.Health = self.MaxHealth
-	self.Part = game.ServerStorage.Enemies[enemyName]:Clone()
-	self.Part:SetAttribute("Health", self.Health)
-	self.Part.Healthbar.Health.Text = self.Health
-	self.Part.Healthbar.Enabled = true
-	self.Part.Position = Maps.Waypoints[1]
-	self.Part.Parent = workspace.Enemies
+--#region Variables
+local EnemyService = {} :: EnemyService
+EnemyService.Enemies = {}
+EnemyService.HealthSort = {}
+EnemyService.DistanceSort = {}
+EnemyService.EnemyQueue = {}
+EnemyService.EnemyRemoveQueue = {}
+local waveIndex = 0
+local spawnTimer = 0
+--#endregion
 
-	self.Part:GetAttributeChangedSignal("Health"):Connect(function()
-		self.Part.Healthbar.Health.Text = self.Health
-	end)
+--#region Functions
+function EnemyService.nextWave()
+	waveIndex += 1
+	if Waves[waveIndex] then
+		local wave: Waves.Wave = Waves[waveIndex]
 
-	return setmetatable(self, Enemy)
-end
-
-function Enemy:Destroy()
-    self.Part:Destroy()
-    setmetatable(self, nil)
-    table.clear(self)
-    table.freeze(self)
-	return
-end
-
-function Enemy:Move(deltaTime: number)
-
-
-	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
-	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
-	local direction: Vector3 = waypoint - self.Part.Position
-	local waypointDistance: number = direction.Magnitude
-	local normalized: Vector3 = direction / waypointDistance
-
-	if moveDistance < waypointDistance then
-		self.Part.Position = self.Part.Position + normalized * moveDistance
-		self.Distance = waypointDistance
-		return self
-	else
-		if Maps.Waypoints[self.Waypoint + 1] then
-			self.Waypoint += 1
-			self.Part.Position = waypoint
-
-			local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
-			local moveDistance = moveDistance - waypointDistance
-			local direction: Vector3 = waypoint - self.Part.Position
-			local waypointDistance: number = direction.Magnitude
-			local normalized: Vector3 = direction / waypointDistance
-			
-			self.Part.Position = self.Part.Position + normalized * moveDistance
-			self.Distance = waypointDistance
-			return self
-		else
-			self.Part.Position = waypoint
-			return nil
+		for _, v in wave do
+			for x = 1, v.Amount do
+    	        if x == 1 then
+    	            table.insert(EnemyService.EnemyQueue, {v.Name, v.UnitDelay + v.GroupDelay})
+    	        else
+    	            table.insert(EnemyService.EnemyQueue, {v.Name, v.UnitDelay})
+    	        end
+			end
 		end
-	end
-end
 
-function Enemy:ChangeHealth(value)
-	self.Health += value
-	self.Part:SetAttribute("Health", self.Health)
-	if self.Health > 0 then
-		return self
+		return EnemyService.EnemyQueue
 	else
 		return nil
 	end
 end
 
-function Enemy:SetStun()
-	
+function EnemyService.spawnEnemy()
+	local enemy: {} = EnemyService.EnemyQueue[1]
+    local debounce: number = enemy[2]
+
+    if tick() - spawnTimer > debounce then
+        spawnTimer = tick()
+        local newEnemy = Enemy.new(enemy[1])
+        table.insert(EnemyService.Enemies, newEnemy)
+        newEnemy.Index = #EnemyService.Enemies
+        table.insert(EnemyService.HealthSort, newEnemy)
+        newEnemy.HealthIndex = newEnemy.Index
+        table.insert(EnemyService.DistanceSort, newEnemy)
+        newEnemy.DistanceIndex = newEnemy.Index
+        table.remove(EnemyService.EnemyQueue, 1)
+    end
+
+    return
 end
 
-return Enemy
+function EnemyService.sortEnemies()
+    for i, v in EnemyService.Enemies do
+        v.Index = i
+    end
+
+    return EnemyService.Enemies
+end
+
+function EnemyService.sortHealth()
+	table.sort(EnemyService.HealthSort, function(a, b)
+        return a.Health > b.Health
+    end)
+
+    if #EnemyService.HealthSort > 0 then
+        for i, enemy in EnemyService.HealthSort do
+            enemy.HealthIndex = i
+        end
+    end
+
+    return EnemyService.HealthSort
+end
+
+function EnemyService.sortDistance()
+	table.sort(EnemyService.DistanceSort, function(a, b)
+        if a.Waypoint ~= b.Waypoint then
+            return a.Waypoint > b.Waypoint
+        else
+            return a.Distance < b.Distance
+        end
+    end)
+
+    if #EnemyService.DistanceSort > 0 then
+        for i, enemy in EnemyService.DistanceSort do
+            enemy.DistanceIndex = i
+        end
+    end
+
+    return EnemyService.DistanceSort
+end
+
+function EnemyService.moveEnemies(deltaTime: number)
+	for _, v in EnemyService.Enemies do
+		local result = v:Move(deltaTime)
+		if result == nil then
+            table.insert(EnemyService.EnemyRemoveQueue, v)
+        end
+	end
+
+    EnemyService.sortDistance()
+
+    return
+end
+
+function EnemyService.removeEnemies()
+    for _, v in EnemyService.EnemyRemoveQueue do
+        table.remove(EnemyService.HealthSort, v.HealthIndex)
+        EnemyService.sortHealth()
+        table.remove(EnemyService.DistanceSort, v.DistanceIndex)
+        EnemyService.sortDistance()
+        table.remove(EnemyService.Enemies, v.Index)
+        EnemyService.sortEnemies()
+        v:Destroy()
+    end
+
+    table.clear(EnemyService.EnemyRemoveQueue)
+
+    return
+end
+--#endregion
+
+return EnemyService

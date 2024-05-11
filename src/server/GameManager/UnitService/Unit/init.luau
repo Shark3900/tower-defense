@@ -1,9 +1,9 @@
 --!strict
-
+--#region Requires & Types
 local UnitTemplates = require(script.UnitTemplates)
 local Maps = require(script.Parent.Parent.EnemyService.Maps)
-local Units = {}
-Units.__index = Units
+local Unit = {}
+Unit.__index = Unit
 
 export type Unit = {
     --Properties
@@ -37,8 +37,10 @@ export type Unit = {
 	Attack: (self: Unit, enemy: {}) -> ({}?),
 	CheckRange: (self: Unit, enemy: {}) -> (boolean)
 }
+--#endregion
 
-function Units.new(unitName: string)
+--#region Functions
+function Unit.new(unitName: string)
 	local self = table.clone(UnitTemplates[unitName])
 	self.Health = self.MaxHealth
 	self.Waypoint = #Maps.Waypoints - 1
@@ -53,10 +55,10 @@ function Units.new(unitName: string)
 		self.Part.Healthbar.Health.Text = self.Health
 	end)
 
-	return setmetatable(self, Units)
+	return setmetatable(self, Unit)
 end
 
-function Units:Destroy()
+function Unit:Destroy()
     self.Part:Destroy()
     setmetatable(self, nil)
     table.clear(self)
@@ -64,7 +66,7 @@ function Units:Destroy()
 	return
 end
 
-function Units:Move(deltaTime: number)
+function Unit:Move(deltaTime: number)
 	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
 	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
 	local direction: Vector3 = waypoint - self.Part.Position
@@ -96,7 +98,7 @@ function Units:Move(deltaTime: number)
 	end
 end
 
-function Units:Collide(enemy)
+function Unit:Collide(enemy)
 	if self.Health > enemy.Health then
 		self.Health -= enemy.Health
 		enemy:ChangeHealth(-enemy.Health)
@@ -113,17 +115,18 @@ function Units:Collide(enemy)
 	end
 end
 
-function Units:Attack(enemy)
+function Unit:Attack(enemy)
     self.AttackTimer = tick()
     return enemy:ChangeHealth(-self.Damage)
 end
 
-function Units:CheckRange(enemy: {})
+function Unit:CheckRange(enemy: {})
     if (enemy.Part.Position - self.Part.Position).Magnitude <= self.Range then
         return true
     else
         return false
     end
 end
+--#endregion
 
-return Units
+return Unit

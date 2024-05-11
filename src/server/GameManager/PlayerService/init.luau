@@ -1,5 +1,5 @@
 --!strict
-
+--#region Requires & Types
 local Player = {}
 Player.__index = Player
 
@@ -9,7 +9,9 @@ export type PlayerData = {
     --Functions
     new: (playerName: string) -> ()
 }
+--#endregion
 
+--#region Functions
 function Player.new(playerName: string)
     local self = {
         User = game.Players:GetPlayers()[playerName]
@@ -17,5 +19,6 @@ function Player.new(playerName: string)
 
     return setmetatable(self, Player)
 end
+--#endregion
 
 return Player
