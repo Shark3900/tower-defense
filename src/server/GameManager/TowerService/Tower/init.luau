@@ -139,13 +139,21 @@ function Tower:FindLast()
     return nil
 end
 
+--TODO: Chain might be inconsistent
 function Tower:DirectAttack(target: {Enemy.Enemy})
+    table.insert(self.AttackQueue, target)
     if self.Chain then
-        for i = target.Index, self.Chain do
-            table.insert(self.AttackQueue, EnemyService.Enemies[i])
+        for i = target.DistanceIndex + 1, self.Chain do
+            if EnemyService.DistanceSort[i] then
+                local enemyOne = EnemyService.DistanceSort[i - 1]
+                local enemyTwo = EnemyService.DistanceSort[i]
+                if EnemyService.getDistance(enemyOne, enemyTwo) < self.ChainRange then
+                    table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
+                else
+                    break
+                end
+            end
         end
-    else
-        table.insert(self.AttackQueue, target)
     end
 
     if #self.AttackQueue > 0 then

@@ -100,7 +100,7 @@ function EnemyService.sortDistance()
         if a.Waypoint ~= b.Waypoint then
             return a.Waypoint > b.Waypoint
         else
-            return a.Distance < b.Distance
+            return a.DistanceNext < b.DistanceNext
         end
     end)
 
@@ -111,6 +111,16 @@ function EnemyService.sortDistance()
     end
 
     return EnemyService.DistanceSort
+end
+
+function EnemyService.getDistance(enemyOne: {Enemy.Enemy}, enemyTwo: {Enemy.Enemy})
+    if enemyOne.Waypoint == enemyTwo.Waypoint then
+        return enemyTwo.DistanceNext - enemyOne.DistanceNext
+    elseif enemyOne.Waypoint > enemyTwo.Waypoint then
+        return enemyOne.DistancePrev + enemyTwo.DistanceNext
+    else
+        print("That's a fast runner")
+    end
 end
 
 function EnemyService.moveEnemies(deltaTime: number)
