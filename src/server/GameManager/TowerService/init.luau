@@ -20,14 +20,14 @@ TowerService.Spawners = {}
 --#endregion
 
 --#region Functions
-function TowerService.newTower(towerType: string, position: Vector3)
+function TowerService.newTower(towerType: string, position: Vector3): (Tower.Tower)
     --TODO: Implement economy
     local tower = Tower.new(towerType, position)
     table.insert(TowerService.Towers, tower)
     return tower
 end
 
-function TowerService.newSpawner(spawnerType: string, position: Vector3)
+function TowerService.newSpawner(spawnerType: string, position: Vector3): (Tower.Tower)
     local spawner = Tower.new(spawnerType, position)
     table.insert(TowerService.Spawners, spawner)
     return spawner
@@ -35,7 +35,7 @@ end
 
 --function TowerService.sellTower()?
 
-function TowerService.attackEnemies()
+function TowerService.attackEnemies(): ()
     for _, tower in TowerService.Towers do
         local debounce: number = tower.AttackSpeed
 

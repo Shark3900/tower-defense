@@ -19,6 +19,7 @@ export type Tower = {
     AttackQueue: {Enemy.Enemy},
 	Range: number,
     Chain: number, --If chain attack
+    ChainRange: number, --If chain attack
     Angle: number, --If cone AOE
     Radius: number, --If circle AOE
     Width: number, --If rectangle AOE
@@ -32,25 +33,25 @@ export type Tower = {
 	CanStealth: boolean,
 	CanFlying: boolean,
     --Functions
-    new: (towerName: string, position: Vector3) -> ({Tower}),
+    new: (towerName: string, position: Vector3) -> (Tower),
     Destroy: (self: Tower) -> (),
-    Attack: (self: Tower, enemy: {Enemy.Enemy}) -> ({Enemy.Enemy}?),
+    Attack: (self: Tower, enemy: Enemy.Enemy) -> (Enemy.Enemy?),
     AttackLoop: (self: Tower) -> (),
-    CheckRange: (self: Tower, enemy: {Enemy.Enemy}) -> (boolean),
-    FindTarget: (self: Tower) -> ({Enemy.Enemy}?),
-    FindFirst: (self: Tower) -> ({Enemy.Enemy}?),
-    FindStrong: (self: Tower) -> ({Enemy.Enemy}?),
-    FindLast: (self: Tower) -> ({Enemy.Enemy}?),
-    DirectAttack: (self: Tower, target: {Enemy.Enemy}) -> (),
-    ConeAttack: (self: Tower, target: {Enemy.Enemy}) -> (),
-    CircleAttack: (self: Tower, target: {Enemy.Enemy}) -> (),
-    BoxAttack: (self: Tower, target: {Enemy.Enemy}) -> (),
-    SpawnUnit: (self: Tower) -> ({Unit.Unit}) --Probably doesn't need self, move to UnitService?
+    CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
+    FindTarget: (self: Tower) -> (Enemy.Enemy?),
+    FindFirst: (self: Tower) -> (Enemy.Enemy?),
+    FindStrong: (self: Tower) -> (Enemy.Enemy?),
+    FindLast: (self: Tower) -> (Enemy.Enemy?),
+    DirectAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    BoxAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    SpawnUnit: (self: Tower) -> (Unit.Unit)
 }
 --#endregion
 
 --#region Functions
-function Tower.new(towerName: string, position: Vector3)
+function Tower.new(towerName: string, position: Vector3): Tower
 	local self = table.clone(TowerTemplates[towerName])
     self.Part = game.ServerStorage.Towers[towerName]:Clone()
     self.Part.Position = position
@@ -58,7 +59,7 @@ function Tower.new(towerName: string, position: Vector3)
     return setmetatable(self, Tower)
 end
 
-function Tower:Destroy()
+function Tower:Destroy(): ()
 	self.Part:Destroy()
 	setmetatable(self, nil)
 	table.clear(self)
@@ -66,14 +67,14 @@ function Tower:Destroy()
 	return
 end
 
-function Tower:Attack(enemy: {Enemy.Enemy})
+function Tower:Attack(enemy: Enemy.Enemy): Enemy.Enemy?
     self.AttackTimer = tick()
     return enemy:ChangeHealth(-self.Damage)
 end
 
-function Tower:AttackLoop()
+function Tower:AttackLoop(): ()
     for _, v in self.AttackQueue do
-        local result = self:Attack(v)
+        local result: boolean? = self:Attack(v)
         if result == nil then
             table.insert(EnemyService.EnemyRemoveQueue, v)
         end
@@ -84,7 +85,7 @@ function Tower:AttackLoop()
     return
 end
 
-function Tower:CheckRange(enemy: {Enemy.Enemy})
+function Tower:CheckRange(enemy: Enemy.Enemy): boolean
     if (enemy.Part.Position - self.Part.Position).Magnitude <= self.Range then
         return true
     else
@@ -92,8 +93,8 @@ function Tower:CheckRange(enemy: {Enemy.Enemy})
     end
 end
 
-function Tower:FindTarget()
-    local target
+function Tower:FindTarget(): Enemy.Enemy?
+    local target: Enemy.Enemy?
 
     if self.AttackPrio == "Melee" then
         return nil
@@ -108,7 +109,7 @@ function Tower:FindTarget()
     return target
 end
 
-function Tower:FindFirst()
+function Tower:FindFirst(): Enemy.Enemy?
     for _, enemy in EnemyService.DistanceSort do
         if enemy.Health > 0 and self:CheckRange(enemy) then
             return enemy
@@ -118,7 +119,7 @@ function Tower:FindFirst()
     return nil
 end
 
-function Tower:FindStrong()
+function Tower:FindStrong(): Enemy.Enemy?
     for _, enemy in EnemyService.HealthSort do
         if enemy.Health > 0 and self:CheckRange(enemy) then
             return enemy
@@ -128,9 +129,9 @@ function Tower:FindStrong()
     return nil
 end
 
-function Tower:FindLast()
+function Tower:FindLast(): Enemy.Enemy?
     for i = #EnemyService.DistanceSort, 1, -1 do
-        local enemy = EnemyService.DistanceSort[i]
+        local enemy: Enemy.Enemy = EnemyService.DistanceSort[i]
         if enemy.Health > 0 and self:CheckRange(enemy) then
             return enemy
         end
@@ -140,13 +141,13 @@ function Tower:FindLast()
 end
 
 --TODO: Chain might be inconsistent
-function Tower:DirectAttack(target: {Enemy.Enemy})
+function Tower:DirectAttack(target: Enemy.Enemy): ()
     table.insert(self.AttackQueue, target)
     if self.Chain then
         for i = target.DistanceIndex + 1, self.Chain do
             if EnemyService.DistanceSort[i] then
-                local enemyOne = EnemyService.DistanceSort[i - 1]
-                local enemyTwo = EnemyService.DistanceSort[i]
+                local enemyOne: Enemy.Enemy = EnemyService.DistanceSort[i - 1]
+                local enemyTwo: Enemy.Enemy = EnemyService.DistanceSort[i]
                 if EnemyService.getDistance(enemyOne, enemyTwo) < self.ChainRange then
                     table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
                 else
@@ -163,7 +164,7 @@ function Tower:DirectAttack(target: {Enemy.Enemy})
     return
 end
 
-function Tower:ConeAttack(target: {Enemy.Enemy})
+function Tower:ConeAttack(target: Enemy.Enemy): ()
     local towerPos: Vector3 = self.Part.Position
     local direction: Vector3 = (target.Part.Position - towerPos).Unit
 
@@ -185,7 +186,7 @@ function Tower:ConeAttack(target: {Enemy.Enemy})
     return
 end
 
-function Tower:CircleAttack(target: {Enemy.Enemy})
+function Tower:CircleAttack(target: Enemy.Enemy): ()
     for _, enemy in self.Enemies do
         if (enemy.Part.Position - target.Part.Position).Magntiude <= self.Range then
             table.insert(self.AttackQueue, enemy)
@@ -199,7 +200,7 @@ function Tower:CircleAttack(target: {Enemy.Enemy})
     return
 end
 
-function Tower:BoxAttack(target: {Enemy.Enemy})
+function Tower:BoxAttack(target: Enemy.Enemy): ()
     local halfWidth: number = self.Width / 2
 
     for _, enemy in self.Enemies do
@@ -219,9 +220,9 @@ function Tower:BoxAttack(target: {Enemy.Enemy})
     return
 end
 
-function Tower:SpawnUnit()
+function Tower:SpawnUnit(): Unit.Unit
     self.SpawnTimer = tick()
-    local unit = Unit.new(self.SpawnType)
+    local unit: Unit.Unit = Unit.new(self.SpawnType)
     table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed
     return unit
 end

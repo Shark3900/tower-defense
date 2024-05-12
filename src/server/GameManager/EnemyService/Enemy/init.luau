@@ -29,15 +29,15 @@ export type Enemy = {
 	Stealth: boolean,
 	Flying: boolean,
 	--Functions
-	new: (enemyName: string) -> ({Enemy}),
+	new: (enemyName: string) -> (Enemy),
 	Destroy: (self: Enemy) -> (),
-	Move: (self: Enemy, deltaTime: number) -> ({Enemy}?),
-	ChangeHealth: (self: Enemy, value: number) -> ({Enemy}?)
+	Move: (self: Enemy, deltaTime: number) -> (Enemy?),
+	ChangeHealth: (self: Enemy, value: number) -> (Enemy?)
 }
 --#endregion
 
 --#region Functions
-function Enemy.new(enemyName: string)
+function Enemy.new(enemyName: string): (Enemy)
 	local self = table.clone(EnemyTemplates[enemyName])
 	self.Health = self.MaxHealth
 	self.Part = game.ServerStorage.Enemies[enemyName]:Clone()
@@ -54,7 +54,7 @@ function Enemy.new(enemyName: string)
 	return setmetatable(self, Enemy)
 end
 
-function Enemy:Destroy()
+function Enemy:Destroy(): ()
     self.Part:Destroy()
     setmetatable(self, nil)
     table.clear(self)
@@ -62,7 +62,7 @@ function Enemy:Destroy()
 	return
 end
 
-function Enemy:Move(deltaTime: number)
+function Enemy:Move(deltaTime: number): (Enemy?)
 	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
 	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
 	local direction: Vector3 = waypoint - self.Part.Position
@@ -96,7 +96,7 @@ function Enemy:Move(deltaTime: number)
 	end
 end
 
-function Enemy:ChangeHealth(value)
+function Enemy:ChangeHealth(value): (Enemy?)
 	self.Health += value
 	self.Part:SetAttribute("Health", self.Health)
 	if self.Health > 0 then

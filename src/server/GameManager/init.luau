@@ -3,7 +3,7 @@
 local EnemyService = require(script.EnemyService)
 local TowerService = require(script.TowerService)
 local UnitService = require(script.UnitService)
-local PlayerService = require(script.PlayerService) --TODO: Implement
+--local PlayerService = require(script.PlayerService) --TODO: Implement
 local Maps = require(script.EnemyService.Maps)
 
 type GameManager = {
@@ -17,21 +17,23 @@ type GameManager = {
 }
 --#endregion
 
-local GameManager = {}
+local GameManager = {} :: GameManager
 GameManager.Benchmark = {}
 
 --#functions
-function GameManager.start(map: string)
+function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
 	TowerService.newTower("Chain", Vector3.new(-1, 0.6, 81))
+    
+    return
 end
 
-function GameManager.updateLoop()
+function GameManager.updateLoop(): ()
 	GameManager.Heartbeat = game:GetService("RunService").Heartbeat:Connect(function(dt)
-        local startTime = os.clock()
+        local startTime: number = os.clock()
         if #EnemyService.Enemies == 0 and #EnemyService.EnemyQueue == 0 then
-            local result = EnemyService.nextWave()
+            local result: {{Name: string, Delay: number}}? = EnemyService.nextWave()
             if result == nil then
                 print("woooo you won!!")
                 GameManager.Heartbeat:Disconnect()
@@ -57,13 +59,13 @@ function GameManager.updateLoop()
         if #UnitService.UnitRemoveQueue > 0 then
             UnitService.removeUnits()
         end
-        local endTime = os.clock()
+        local endTime: number = os.clock()
         table.insert(GameManager.Benchmark, (endTime - startTime) * 1000)
     end)
 end
 
-function GameManager.getAverageBenchmark()
-    local total = 0
+function GameManager.getAverageBenchmark(): ()
+    local total: number = 0
     for _, v in GameManager.Benchmark do
         total += v
     end

@@ -2,6 +2,7 @@
 --#region Requires & Types
 local UnitTemplates = require(script.UnitTemplates)
 local Maps = require(script.Parent.Parent.EnemyService.Maps)
+local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
 local Unit = {}
 Unit.__index = Unit
 
@@ -30,17 +31,17 @@ export type Unit = {
 	Slowed: boolean,
 	Flying: boolean,
 	--Functions
-	new: (unitName: string) -> ({Unit}),
+	new: (unitName: string) -> (Unit),
 	Destroy: (self: Unit) -> (),
-	Move: (self: Unit, deltaTime: number) -> ({Unit}?),
-	Collide: (self: Unit, enemy: {}) -> (boolean?),
-	Attack: (self: Unit, enemy: {}) -> ({}?),
-	CheckRange: (self: Unit, enemy: {}) -> (boolean)
+	Move: (self: Unit, deltaTime: number) -> (Unit?),
+	Collide: (self: Unit, enemy: Enemy.Enemy) -> (boolean?),
+	Attack: (self: Unit, enemy: Enemy.Enemy) -> (Enemy.Enemy?),
+	CheckRange: (self: Unit, enemy: Enemy.Enemy) -> (boolean)
 }
 --#endregion
 
 --#region Functions
-function Unit.new(unitName: string)
+function Unit.new(unitName: string): (Unit)
 	local self = table.clone(UnitTemplates[unitName])
 	self.Health = self.MaxHealth
 	self.Waypoint = #Maps.Waypoints - 1
@@ -58,7 +59,7 @@ function Unit.new(unitName: string)
 	return setmetatable(self, Unit)
 end
 
-function Unit:Destroy()
+function Unit:Destroy(): ()
     self.Part:Destroy()
     setmetatable(self, nil)
     table.clear(self)
@@ -66,7 +67,7 @@ function Unit:Destroy()
 	return
 end
 
-function Unit:Move(deltaTime: number)
+function Unit:Move(deltaTime: number): (Unit?)
 	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
 	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
 	local direction: Vector3 = waypoint - self.Part.Position
@@ -83,7 +84,7 @@ function Unit:Move(deltaTime: number)
 			self.Part.Position = waypoint
 
 			local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
-			local moveDistance = moveDistance - waypointDistance
+			local moveDistance: number = moveDistance - waypointDistance
 			local direction: Vector3 = waypoint - self.Part.Position
 			local waypointDistance: number = direction.Magnitude
 			local normalized: Vector3 = direction / waypointDistance
@@ -98,7 +99,7 @@ function Unit:Move(deltaTime: number)
 	end
 end
 
-function Unit:Collide(enemy)
+function Unit:Collide(enemy: Enemy.Enemy): (boolean?)
 	if self.Health > enemy.Health then
 		self.Health -= enemy.Health
 		enemy:ChangeHealth(-enemy.Health)
@@ -115,12 +116,12 @@ function Unit:Collide(enemy)
 	end
 end
 
-function Unit:Attack(enemy)
+function Unit:Attack(enemy: Enemy.Enemy): (Enemy.Enemy?)
     self.AttackTimer = tick()
     return enemy:ChangeHealth(-self.Damage)
 end
 
-function Unit:CheckRange(enemy: {})
+function Unit:CheckRange(enemy: Enemy.Enemy): (boolean)
     if (enemy.Part.Position - self.Part.Position).Magnitude <= self.Range then
         return true
     else

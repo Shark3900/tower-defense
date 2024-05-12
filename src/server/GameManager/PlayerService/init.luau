@@ -1,24 +1,21 @@
 --!strict
 --#region Requires & Types
-local Player = {}
-Player.__index = Player
+local Player = require(script.Player)
+--#endregion
 
-export type PlayerData = {
-    --Properties
-    User: Player,
-    --Functions
-    new: (playerName: string) -> ()
-}
+--#region Variables
+local PlayerService = {}
+PlayerService.Players = {} :: Player.PlayerData
 --#endregion
 
 --#region Functions
-function Player.new(playerName: string)
-    local self = {
-        User = game.Players:GetPlayers()[playerName]
-    }
-
-    return setmetatable(self, Player)
+function PlayerService.distributeMoney(money: number): ()
+    local players = PlayerService.Players
+    local disbursement = money / players
+    for i, player in players do
+        
+    end
 end
 --#endregion
 
-return Player
+return PlayerService

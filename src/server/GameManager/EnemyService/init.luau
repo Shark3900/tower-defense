@@ -7,14 +7,14 @@ type EnemyService = {
 	Enemies: {Enemy.Enemy},
 	HealthSort: {Enemy.Enemy},
 	DistanceSort: {Enemy.Enemy},
-	EnemyQueue: {Enemy.Enemy},
+	EnemyQueue: {{Name: string, Delay: number}},
 	EnemyRemoveQueue: {Enemy.Enemy},
 	--Local Functions
 	sortEnemies: () -> ({Enemy.Enemy}),
 	sortHealth: () -> ({Enemy.Enemy}),
 	sortDistance: () -> ({Enemy.Enemy}),
 	--Functions
-	nextWave: () -> ({Enemy.Enemy}?),
+	nextWave: () -> ({{Name: string, Delay: number}}?),
 	spawnEnemy: () -> (),
 	moveEnemies: (deltaTime: number) -> (),
 	removeEnemies: () -> ()
@@ -28,12 +28,12 @@ EnemyService.HealthSort = {}
 EnemyService.DistanceSort = {}
 EnemyService.EnemyQueue = {}
 EnemyService.EnemyRemoveQueue = {}
-local waveIndex = 0
-local spawnTimer = 0
+local waveIndex: number = 0
+local spawnTimer: number = 0
 --#endregion
 
 --#region Functions
-function EnemyService.nextWave()
+function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 	waveIndex += 1
 	if Waves[waveIndex] then
 		local wave: Waves.Wave = Waves[waveIndex]
@@ -54,13 +54,13 @@ function EnemyService.nextWave()
 	end
 end
 
-function EnemyService.spawnEnemy()
-	local enemy: {} = EnemyService.EnemyQueue[1]
+function EnemyService.spawnEnemy(): ()
+	local enemy: {Name: string, Delay: number} = EnemyService.EnemyQueue[1]
     local debounce: number = enemy[2]
 
     if tick() - spawnTimer > debounce then
         spawnTimer = tick()
-        local newEnemy = Enemy.new(enemy[1])
+        local newEnemy: Enemy.Enemy = Enemy.new(enemy[1])
         table.insert(EnemyService.Enemies, newEnemy)
         newEnemy.Index = #EnemyService.Enemies
         table.insert(EnemyService.HealthSort, newEnemy)
@@ -73,7 +73,7 @@ function EnemyService.spawnEnemy()
     return
 end
 
-function EnemyService.sortEnemies()
+function EnemyService.sortEnemies(): ({Enemy.Enemy})
     for i, v in EnemyService.Enemies do
         v.Index = i
     end
@@ -81,7 +81,7 @@ function EnemyService.sortEnemies()
     return EnemyService.Enemies
 end
 
-function EnemyService.sortHealth()
+function EnemyService.sortHealth(): ({Enemy.Enemy})
 	table.sort(EnemyService.HealthSort, function(a, b)
         return a.Health > b.Health
     end)
@@ -95,7 +95,7 @@ function EnemyService.sortHealth()
     return EnemyService.HealthSort
 end
 
-function EnemyService.sortDistance()
+function EnemyService.sortDistance(): ({Enemy.Enemy})
 	table.sort(EnemyService.DistanceSort, function(a, b)
         if a.Waypoint ~= b.Waypoint then
             return a.Waypoint > b.Waypoint
@@ -113,7 +113,7 @@ function EnemyService.sortDistance()
     return EnemyService.DistanceSort
 end
 
-function EnemyService.getDistance(enemyOne: {Enemy.Enemy}, enemyTwo: {Enemy.Enemy})
+function EnemyService.getDistance(enemyOne: {Enemy.Enemy}, enemyTwo: {Enemy.Enemy}): (number)
     if enemyOne.Waypoint == enemyTwo.Waypoint then
         return enemyTwo.DistanceNext - enemyOne.DistanceNext
     elseif enemyOne.Waypoint > enemyTwo.Waypoint then
@@ -123,9 +123,9 @@ function EnemyService.getDistance(enemyOne: {Enemy.Enemy}, enemyTwo: {Enemy.Enem
     end
 end
 
-function EnemyService.moveEnemies(deltaTime: number)
+function EnemyService.moveEnemies(deltaTime: number): ()
 	for _, v in EnemyService.Enemies do
-		local result = v:Move(deltaTime)
+		local result: boolean? = v:Move(deltaTime)
 		if result == nil then
             table.insert(EnemyService.EnemyRemoveQueue, v)
         end
@@ -136,7 +136,7 @@ function EnemyService.moveEnemies(deltaTime: number)
     return
 end
 
-function EnemyService.removeEnemies()
+function EnemyService.removeEnemies(): ()
     for _, v in EnemyService.EnemyRemoveQueue do
         table.remove(EnemyService.HealthSort, v.HealthIndex)
         EnemyService.sortHealth()
