@@ -74,7 +74,7 @@ function EnemyService.spawnEnemy(): ()
 end
 
 function EnemyService.removeEnemies(): (number)
-    local cashPending = 0
+    local cashPending: number = 0
     for _, v in EnemyService.EnemyRemoveQueue do
         cashPending += v.Value
         table.remove(EnemyService.HealthSort, v.HealthIndex)
@@ -92,7 +92,7 @@ function EnemyService.removeEnemies(): (number)
 end
 
 function EnemyService.moveEnemies(deltaTime: number): (number)
-    local pendingDamage = 0
+    local pendingDamage: number = 0
 
 	for _, enemy in EnemyService.Enemies do
 		local result: Enemy.Enemy? = enemy:Move(deltaTime)

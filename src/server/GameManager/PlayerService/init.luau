@@ -8,7 +8,7 @@ type PlayerService = {
     Players: {Player.PlayerData},
     CashPending: number,
     --Functions
-    newPlayer: (player: Player) -> (Player.PlayerData),
+    newPlayer: (player: Player) -> (),
     distributeCash: () -> ()
 }
 --#endregion
@@ -20,16 +20,15 @@ PlayerService.CashPending = 0
 --#endregion
 
 --#region Functions
-function PlayerService.newPlayer(player: Player)
-    local newPlayer = player
-    table.insert(PlayerService.Players, Player.new(newPlayer))
-    return newPlayer
+function PlayerService.newPlayer(player: Player): ()
+    table.insert(PlayerService.Players, Player.new(player))
+    return
 end
 
 function PlayerService.distributeCash(): ()
     local players = PlayerService.Players
     local disbursement = PlayerService.CashPending / #players
-    
+
     for _, player in players do
         player:ChangeCash(disbursement)
     end

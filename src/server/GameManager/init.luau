@@ -45,7 +45,6 @@ function GameManager.updateLoop(): ()
             EnemyService.spawnEnemy()
         end
         GameManager.Health -= EnemyService.moveEnemies(dt)
-        print(GameManager.Health)
         if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
             TowerService.attackEnemies()
         end
@@ -70,11 +69,14 @@ end
 
 function GameManager.getAverageBenchmark(): ()
     local total: number = 0
+    
     for _, v in GameManager.Benchmark do
         total += v
     end
+
     print(`# of frames: {#GameManager.Benchmark}`)
     print(`average frame time: {total / #GameManager.Benchmark}`)
+
     return
 end
 --#endregion
