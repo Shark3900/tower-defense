@@ -12,7 +12,7 @@ type EnemyService = {
 	--Functions
 	nextWave: () -> ({{Name: string, Delay: number}}?),
 	spawnEnemy: () -> (),
-	removeEnemies: () -> (),
+	removeEnemies: () -> (number),
 	moveEnemies: (deltaTime: number) -> (),
     sortEnemies: () -> ({Enemy.Enemy}),
     sortHealth: () -> ({Enemy.Enemy}),
@@ -73,8 +73,10 @@ function EnemyService.spawnEnemy(): ()
     return
 end
 
-function EnemyService.removeEnemies(): ()
+function EnemyService.removeEnemies(): (number)
+    local cashPending = 0
     for _, v in EnemyService.EnemyRemoveQueue do
+        cashPending += v.Value
         table.remove(EnemyService.HealthSort, v.HealthIndex)
         EnemyService.sortHealth()
         table.remove(EnemyService.DistanceSort, v.DistanceIndex)
@@ -86,20 +88,23 @@ function EnemyService.removeEnemies(): ()
 
     table.clear(EnemyService.EnemyRemoveQueue)
 
-    return
+    return cashPending
 end
 
-function EnemyService.moveEnemies(deltaTime: number): ()
-	for _, v in EnemyService.Enemies do
-		local result: Enemy.Enemy? = v:Move(deltaTime)
+function EnemyService.moveEnemies(deltaTime: number): (number)
+    local pendingDamage = 0
+
+	for _, enemy in EnemyService.Enemies do
+		local result: Enemy.Enemy? = enemy:Move(deltaTime)
 		if result == nil then
-            table.insert(EnemyService.EnemyRemoveQueue, v)
+            pendingDamage += enemy.Health
+            table.insert(EnemyService.EnemyRemoveQueue, enemy)
         end
 	end
 
     EnemyService.sortDistance()
 
-    return
+    return pendingDamage
 end
 
 function EnemyService.sortEnemies(): ({Enemy.Enemy})

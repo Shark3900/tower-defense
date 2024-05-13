@@ -3,12 +3,13 @@
 local EnemyService = require(script.EnemyService)
 local TowerService = require(script.TowerService)
 local UnitService = require(script.UnitService)
---local PlayerService = require(script.PlayerService) --TODO: Implement
+local PlayerService = require(script.PlayerService)
 local Maps = require(script.EnemyService.Maps)
 
 type GameManager = {
     --Properties
 	Map: {Maps.Map},
+    Health: number,
     Benchmark: {number},
     --Functions
     start: (map: string) -> (),
@@ -18,6 +19,7 @@ type GameManager = {
 --#endregion
 
 local GameManager = {} :: GameManager
+GameManager.Health = 100
 GameManager.Benchmark = {}
 
 --#functions
@@ -42,7 +44,8 @@ function GameManager.updateLoop(): ()
         if #EnemyService.EnemyQueue > 0 then
             EnemyService.spawnEnemy()
         end
-        EnemyService.moveEnemies(dt)
+        GameManager.Health -= EnemyService.moveEnemies(dt)
+        print(GameManager.Health)
         if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
             TowerService.attackEnemies()
         end
@@ -54,7 +57,8 @@ function GameManager.updateLoop(): ()
             end
         end
         if #EnemyService.EnemyRemoveQueue > 0 then
-            EnemyService.removeEnemies()
+            PlayerService.CashPending = EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
+            PlayerService.distributeCash()
         end
         if #UnitService.UnitRemoveQueue > 0 then
             UnitService.removeUnits()
