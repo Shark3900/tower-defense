@@ -1,5 +1,4 @@
 --!strict
-
 export type Wave = {
 	[number]: {
 		[number]: {
