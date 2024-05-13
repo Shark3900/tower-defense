@@ -22,12 +22,18 @@ local GameManager = {} :: GameManager
 GameManager.Health = 100
 GameManager.Benchmark = {}
 
+local function changeHealth(value: number)
+    GameManager.Health += value
+    workspace:SetAttribute("Health", GameManager.Health)
+    return GameManager.Health
+end
+
 --#functions
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
 	TowerService.newTower("Chain", Vector3.new(-1, 0.6, 81))
-    
+
     return
 end
 
@@ -44,7 +50,7 @@ function GameManager.updateLoop(): ()
         if #EnemyService.EnemyQueue > 0 then
             EnemyService.spawnEnemy()
         end
-        GameManager.Health -= EnemyService.moveEnemies(dt)
+        changeHealth(-EnemyService.moveEnemies(dt))
         if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
             TowerService.attackEnemies()
         end

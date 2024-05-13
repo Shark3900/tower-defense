@@ -11,13 +11,13 @@ export type PlayerData = {
     --Equipped: {string},
     --Towers: {Tower.Tower},
     --Functions
-    new: (playerName: string) -> (),
-    ChangeMoney: (value: number) -> (number)
+    new: (playerName: string) -> (PlayerData),
+    ChangeCash: (self: PlayerData, value: number) -> (number)
 }
 --#endregion
 
 --#region Functions
-function Player.new(player: Player, equipped: {towerName: string}?)
+function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData)
     local self = {
         User = player,
         --Equipped = equipped,

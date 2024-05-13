@@ -43,9 +43,10 @@ export type Tower = {
     FindStrong: (self: Tower) -> (Enemy.Enemy?),
     FindLast: (self: Tower) -> (Enemy.Enemy?),
     DirectAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (),
     BoxAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (),
+    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (),
     SpawnUnit: (self: Tower) -> (Unit.Unit)
 }
 --#endregion
@@ -140,20 +141,37 @@ function Tower:FindLast(): Enemy.Enemy?
     return nil
 end
 
---TODO: Chain might be inconsistent
 function Tower:DirectAttack(target: Enemy.Enemy): ()
     table.insert(self.AttackQueue, target)
-    if self.Chain then
-        for i = target.DistanceIndex + 1, self.Chain do
-            if EnemyService.DistanceSort[i] then
-                local enemyOne: Enemy.Enemy = EnemyService.DistanceSort[i - 1]
-                local enemyTwo: Enemy.Enemy = EnemyService.DistanceSort[i]
-                if EnemyService.getDistance(enemyOne, enemyTwo) < self.ChainRange then
-                    table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
-                else
-                    break
-                end
-            end
+    self:AttackLoop()
+
+    return
+end
+
+function Tower:CircleAttack(target: Enemy.Enemy): ()
+    for _, enemy in self.Enemies do
+        if (enemy.Part.Position - target.Part.Position).Magntiude <= self.Range then
+            table.insert(self.AttackQueue, enemy)
+        end
+    end
+
+    if #self.AttackQueue > 0 then
+        self:AttackLoop()
+    end
+
+    return
+end
+
+function Tower:BoxAttack(target: Enemy.Enemy): ()
+    local halfWidth: number = self.Width / 2
+
+    for _, enemy in self.Enemies do
+        local toEnemy: Vector3 = enemy.Part.Position - target.Part.Position
+        local distanceAlongDirection: number = toEnemy:Dot(self.Part.CFrame.LookVector)
+        local distancePerpendicular: number = math.abs(toEnemy:Dot(self.Part.CFrame.RightVector))
+
+        if distanceAlongDirection >= 0 and distanceAlongDirection <= self.Range and distancePerpendicular <= halfWidth then
+            table.insert(self.AttackQueue, enemy)
         end
     end
 
@@ -186,30 +204,19 @@ function Tower:ConeAttack(target: Enemy.Enemy): ()
     return
 end
 
-function Tower:CircleAttack(target: Enemy.Enemy): ()
-    for _, enemy in self.Enemies do
-        if (enemy.Part.Position - target.Part.Position).Magntiude <= self.Range then
-            table.insert(self.AttackQueue, enemy)
-        end
-    end
-
-    if #self.AttackQueue > 0 then
-        self:AttackLoop()
-    end
-
-    return
-end
-
-function Tower:BoxAttack(target: Enemy.Enemy): ()
-    local halfWidth: number = self.Width / 2
-
-    for _, enemy in self.Enemies do
-        local toEnemy: Vector3 = enemy.Part.Position - target.Part.Position
-        local distanceAlongDirection: number = toEnemy:Dot(self.Part.CFrame.LookVector)
-        local distancePerpendicular: number = math.abs(toEnemy:Dot(self.Part.CFrame.RightVector))
-
-        if distanceAlongDirection >= 0 and distanceAlongDirection <= self.Range and distancePerpendicular <= halfWidth then
-            table.insert(self.AttackQueue, enemy)
+--TODO: Chain might be inconsistent towards behind targets -- Possibly inconsistent DistanceSort?
+function Tower:ChainAttack(target: Enemy.Enemy)
+    table.insert(self.AttackQueue, target)
+    for i = target.DistanceIndex + 1, self.Chain do
+        if EnemyService.DistanceSort[i] then
+            local enemyOne: Enemy.Enemy = EnemyService.DistanceSort[i - 1]
+            local enemyTwo: Enemy.Enemy = EnemyService.DistanceSort[i]
+            print(EnemyService.DistanceSort[i])
+            if (enemyOne.Part.Position - enemyTwo.Part.Position).Magnitude < self.ChainRange then
+                table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
+            else
+                break
+            end
         end
     end
 

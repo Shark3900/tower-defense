@@ -61,7 +61,7 @@ CreateTower("Basic")
 CreateTower("Cone", {AttackType = "Cone", AttackPrio = "Last", Range = 6, Angle = 45})
 CreateTower("Circle", {AttackType = "Circle", AttackPrio = "Strong", Range = 10, Radius = 3})
 CreateTower("Box", {AttackType = "Box", AttackPrio = "First", Range = 10, Width = 4})
-CreateTower("Chain", {Chain = 5, ChainRange = 4})
+CreateTower("Chain", {AttackType = "Chain", Chain = 5, ChainRange = 4})
 CreateSpawner("MeleeSpawner", {AttackType = "Melee", SpawnType = "Melee"})
 CreateSpawner("RangedSpawner", {AttackType = "Direct", SpawnType = "Ranged"})
 --#endregion

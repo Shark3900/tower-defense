@@ -7,17 +7,16 @@ type EnemyService = {
 	Enemies: {Enemy.Enemy},
 	HealthSort: {Enemy.Enemy},
 	DistanceSort: {Enemy.Enemy},
-	EnemyQueue: {{Name: string, Delay: number}},
+    EnemyQueue: {{string | number}},
 	EnemyRemoveQueue: {Enemy.Enemy},
 	--Functions
-	nextWave: () -> ({{Name: string, Delay: number}}?),
+	nextWave: () -> ({{string | number}}?),
 	spawnEnemy: () -> (),
 	removeEnemies: () -> (number),
 	moveEnemies: (deltaTime: number) -> (),
     sortEnemies: () -> ({Enemy.Enemy}),
     sortHealth: () -> ({Enemy.Enemy}),
-    sortDistance: () -> ({Enemy.Enemy}),
-    getDistance: (enemyOne: Enemy.Enemy, enemyTwo: Enemy.Enemy) -> (number)
+    sortDistance: () -> ({Enemy.Enemy})
 }
 --#endregion
 
@@ -33,17 +32,17 @@ local spawnTimer: number = 0
 --#endregion
 
 --#region Functions
-function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
+function EnemyService.nextWave(): ({{string | number}}?)
 	waveIndex += 1
 	if Waves[waveIndex] then
-		local wave: Waves.Wave = Waves[waveIndex]
+		local wave: {Waves.Group} = Waves[waveIndex]
 
 		for _, group in wave do
 			for x = 1, group.Amount do
     	        if x == 1 then
-    	            table.insert(EnemyService.EnemyQueue, {group.Name, group.UnitDelay + group.GroupDelay})
+    	            table.insert(EnemyService.EnemyQueue, {[1] = group.Name, [2] = group.UnitDelay + group.GroupDelay})
     	        else
-    	            table.insert(EnemyService.EnemyQueue, {group.Name, group.UnitDelay})
+    	            table.insert(EnemyService.EnemyQueue, {[1] = group.Name, [2] = group.UnitDelay})
     	        end
 			end
 		end
@@ -55,12 +54,12 @@ function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 end
 
 function EnemyService.spawnEnemy(): ()
-	local enemy: {Name: string, Delay: number} = EnemyService.EnemyQueue[1]
-    local debounce: number = enemy[2]
+	local enemy: {string | number} = EnemyService.EnemyQueue[1]
+    local debounce = enemy[2] :: number
 
     if tick() - spawnTimer > debounce then
         spawnTimer = tick()
-        local newEnemy: Enemy.Enemy = Enemy.new(enemy[1])
+        local newEnemy: Enemy.Enemy = Enemy.new(enemy[1] :: string)
         table.insert(EnemyService.Enemies, newEnemy)
         newEnemy.Index = #EnemyService.Enemies
         table.insert(EnemyService.HealthSort, newEnemy)
@@ -134,7 +133,7 @@ function EnemyService.sortDistance(): ({Enemy.Enemy})
         if a.Waypoint ~= b.Waypoint then
             return a.Waypoint > b.Waypoint
         else
-            return a.DistanceNext < b.DistanceNext
+            return a.Distance < b.Distance
         end
     end)
 
@@ -145,16 +144,6 @@ function EnemyService.sortDistance(): ({Enemy.Enemy})
     end
 
     return EnemyService.DistanceSort
-end
-
-function EnemyService.getDistance(enemyOne: Enemy.Enemy, enemyTwo: Enemy.Enemy): (number)
-    if enemyOne.Waypoint == enemyTwo.Waypoint then
-        return enemyTwo.DistanceNext - enemyOne.DistanceNext
-    elseif enemyOne.Waypoint > enemyTwo.Waypoint then
-        return enemyOne.DistancePrev + enemyTwo.DistanceNext
-    else
-        print("That's a fast runner")
-    end
 end
 --#endregion
 

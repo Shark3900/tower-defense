@@ -1,13 +1,9 @@
 --!strict
-export type Wave = {
-	[number]: {
-		[number]: {
-			["Name"]: string,
-			["Amount"]: number,
-			["UnitDelay"]: number,
-			["GroupDelay"]: number
-		}
-	}
+export type Group = {
+	["Name"]: string,
+	["Amount"]: number,
+	["UnitDelay"]: number,
+	["GroupDelay"]: number
 }
 
 local Waves = {

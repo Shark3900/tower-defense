@@ -33,7 +33,8 @@ function TowerService.newSpawner(spawnerType: string, position: Vector3): (Tower
     return spawner
 end
 
---function TowerService.sellTower()?
+--function TowerService.sellTower()
+--function TowerService.sellSpawner()
 
 function TowerService.attackEnemies(): ()
     for _, tower in TowerService.Towers do
@@ -46,12 +47,14 @@ function TowerService.attackEnemies(): ()
                 tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
                 if tower.AttackType == "Direct" then
                     tower:DirectAttack(target)
-                elseif tower.AttackType == "Box" then
-                    tower:BoxAttack(target)
                 elseif tower.AttackType == "Circle" then
                     tower:CircleAttack(target)
-                else
+                elseif tower.AttackType == "Box" then
+                    tower:BoxAttack(target)
+                elseif tower.AttackType == "Cone" then
                     tower:ConeAttack(target)
+                else
+                    tower:ChainAttack(target)
                 end
                 EnemyService.sortHealth()
             end

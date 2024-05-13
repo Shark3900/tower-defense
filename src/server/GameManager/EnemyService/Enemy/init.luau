@@ -14,8 +14,7 @@ export type Enemy = {
 	SpeedModifier: number,
 	Value: number,
 	Waypoint: number,
-	DistanceNext: number,
-	DistancePrev: number,
+	Distance: number,
 	Index: number,
 	HealthIndex: number,
 	DistanceIndex: number,
@@ -71,8 +70,7 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 
 	if moveDistance < waypointDistance then
 		self.Part.Position = self.Part.Position + normalized * moveDistance
-		self.DistanceNext = waypointDistance
-		self.DistancePrev = (Maps.Waypoints[self.Waypoint - 1] - self.Part.Position).Magnitude
+		self.Distance = waypointDistance
 		return self
 	else
 		if Maps.Waypoints[self.Waypoint + 1] then
@@ -86,8 +84,7 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 			local normalized: Vector3 = direction / waypointDistance
 			
 			self.Part.Position = self.Part.Position + normalized * moveDistance
-			self.DistanceNext = waypointDistance
-			self.DistancePrev = (Maps.Waypoints[self.Waypoint - 1] - self.Part.Position).Magnitude
+			self.Distance = waypointDistance
 			return self
 		else
 			self.Part.Position = waypoint

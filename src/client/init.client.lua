@@ -1,9 +1,16 @@
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
-local cashCounter = player:WaitForChild("PlayerGui"):WaitForChild("PlayerHUD").CashCounter
+local playerHUD = player:WaitForChild("PlayerGui"):WaitForChild("PlayerHUD")
+local cashCounter = playerHUD.CashGUI.Counter
+local healthCounter = playerHUD.HealthGUI.Counter
 
 local function updateCash()
-    cashCounter.Counter.Text = player:GetAttribute("Cash")
+    cashCounter.Text = player:GetAttribute("Cash")
+end
+
+local function updateHealth()
+    healthCounter.Text = workspace:GetAttribute("Health")
 end
 
 player:GetAttributeChangedSignal("Cash"):Connect(updateCash)
+workspace:GetAttributeChangedSignal("Health"):Connect(updateHealth)

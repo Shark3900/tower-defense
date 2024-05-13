@@ -1,6 +1,6 @@
-local Players = game:GetService("Players")
 --!strict
 --#region Requires & Types
+local Players = game:GetService("Players")
 local Player = require(script.Player)
 
 type PlayerService = {
