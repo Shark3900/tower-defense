@@ -211,7 +211,6 @@ function Tower:ChainAttack(target: Enemy.Enemy)
         if EnemyService.DistanceSort[i] then
             local enemyOne: Enemy.Enemy = EnemyService.DistanceSort[i - 1]
             local enemyTwo: Enemy.Enemy = EnemyService.DistanceSort[i]
-            print(EnemyService.DistanceSort[i])
             if (enemyOne.Part.Position - enemyTwo.Part.Position).Magnitude < self.ChainRange then
                 table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
             else
