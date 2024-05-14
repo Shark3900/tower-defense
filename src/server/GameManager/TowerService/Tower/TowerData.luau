@@ -6,16 +6,16 @@ type TowerData = {
 			Cost: number,
 			Damage: number,
 			Range: number,
-			AttackType: string,
-			AttackPrio: string,
-			AttackSpeed: number,
-			AttackTimer: number,
-			AttackQueue: {},
 			Chain: number?,
 			ChainRange: number?,
 			Angle: number?,
 			Radius: number?,
 			Width: number?,
+			AttackType: string,
+			AttackPrio: string,
+			AttackSpeed: number,
+			AttackTimer: number,
+			AttackQueue: {},
 			CanArmored: boolean,
 			CanStealth: boolean,
 			CanFlying: boolean
@@ -23,46 +23,88 @@ type TowerData = {
 	}
 }
 
+local defaults = {
+	AttackType = "Direct",
+	AttackPrio = "First",
+	AttackSpeed = 0.68,
+	AttackTimer = 0,
+	AttackQueue = {}
+}
+
 local TowerData = {} :: TowerData
+--#endregion
+
+--#region Functions
+local function CreateTower(name: string, customValues: {}?)
+    local newTower = {}
+	local towerDefaults = TowerData[name]["Defaults"]
+
+    for key, value in pairs(defaults) do
+        newTower[key] = value
+    end
+	for key, value in pairs(towerDefaults) do
+        newTower[key] = value
+    end
+    if customValues then
+        for key, value in pairs(customValues) do
+            newTower[key] = value
+        end
+    end
+
+    TowerData[name][#TowerData[name] + 1] = newTower
+
+    return newTower
+end
 --#endregion
 
 --#region Towers
 TowerData["Basic"] = {
-	--Level 1
-	{Damage = 1, Cost = 100, Range = 10,
-	AttackType = "Direct", AttackPrio = "First", AttackSpeed = 0.6, AttackTimer = 0, AttackQueue = {}},
-	--Level 2
-	{Damage = 3, Cost = 200, Range = 12,
-	AttackType = "Direct", AttackPrio = "First", AttackSpeed = 0.8, AttackTimer = 0, AttackQueue = {}}
+	["Defaults"] = {
+		Cost = 100,
+		Damage = 2,
+		Range = 10,
+	}
 }
 TowerData["Sniper"] = {
-	--Level 1
-	{Damage = 10, Cost = 200, Range = 20,
-	AttackType = "Direct", AttackPrio = "First", AttackSpeed = 0.3, AttackTimer = 0, AttackQueue = {}},
-	--Level 2
-	{Damage = 20, Cost = 400, Range = 25,
-	AttackType = "Direct", AttackPrio = "First", AttackSpeed = 0.3, AttackTimer = 0, AttackQueue = {}}
+	["Defaults"] = {
+		Cost = 200,
+		Damage = 10,
+		Range = 20,
+		AttackSpeed = 3
+	}
 }
 TowerData["Tesla"] = {
-	--Level 1
-	{Damage = 1, Cost = 150, Range = 10,
-	AttackType = "Chain", AttackPrio = "First", AttackSpeed = 0.6, AttackTimer = 0, AttackQueue = {},
-	Chain = 3, ChainRange = 5},
-	--Level 2
-	{Damage = 2, Cost = 300, Range = 10,
-	AttackType = "Chain", AttackPrio = "First", AttackSpeed = 0.6, AttackTimer = 0, AttackQueue = {},
-	Chain = 4, ChainRange = 5}
+	["Defaults"] = {
+		Cost = 150,
+		Damage = 1,
+		Range = 10,
+		Chain = 3,
+		ChainRange = 5,
+		AttackType = "Chain"
+	},
 }
 TowerData["Mortar"] = {
-	--Level 1
-	{Damage = 5, Cost = 200, Range = 10,
-	AttackType = "Circle", AttackPrio = "First", AttackSpeed = 0.6, AttackTimer = 0, AttackQueue = {},
-	Radius = 3},
-	--Level 2
-	{Damage = 8, Cost = 400, Range = 10,
-	AttackType = "Circle", AttackPrio = "First", AttackSpeed = 0.6, AttackTimer = 0, AttackQueue = {},
-	Radius = 4}
+	["Defaults"] = {
+		Cost = 200,
+		Damage = 5,
+		Range = 10,
+		Radius = 3,
+		AttackType = "Circle"
+	}
 }
 --#endreigon
+
+CreateTower("Basic")
+CreateTower("Basic", {Cost = 200, Damage = 3, Range = 12, AttackSpeed = 0.5})
+
+CreateTower("Sniper")
+CreateTower("Sniper", {Cost = 400, Damage = 20, Range = 25, AttackSpeed = 2.7})
+
+CreateTower("Tesla")
+CreateTower("Tesla", {Cost = 300, Damage = 2, Chain = 4})
+
+CreateTower("Mortar")
+CreateTower("Mortar", {Cost = 400, Damage = 8, Radius = 4})
+
 
 return TowerData

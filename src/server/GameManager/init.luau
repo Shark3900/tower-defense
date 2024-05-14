@@ -31,8 +31,8 @@ end
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
-	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
-    TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
+	TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
+    --TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
 
     return
 end
@@ -40,7 +40,7 @@ end
 function GameManager.updateLoop(): ()
 	GameManager.Heartbeat = game:GetService("RunService").Heartbeat:Connect(function(dt)
         local startTime: number = os.clock()
-        if #EnemyService.Enemies == 0 and #EnemyService.EnemyQueue == 0 then
+        if #EnemyService.Enemies == 0 and #EnemyService.EnemyQueue == 0 and (tick() - EnemyService.WaveDebounce > 5) then
             local result: {{Name: string, Delay: number}}? = EnemyService.nextWave()
             if result == nil then
                 print("woooo you won!!")

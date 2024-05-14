@@ -64,7 +64,6 @@ end
 
 function TowerService.attackEnemies(): ()
     for _, tower in TowerService.Towers do
-        print(TowerService.Towers)
         local debounce: number = tower.AttackSpeed
 
         if tick() - tower.AttackTimer > debounce then

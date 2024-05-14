@@ -27,6 +27,7 @@ EnemyService.HealthSort = {}
 EnemyService.DistanceSort = {}
 EnemyService.EnemyQueue = {}
 EnemyService.EnemyRemoveQueue = {}
+EnemyService.WaveDebounce = 0
 local waveIndex: number = 0
 local spawnTimer: number = 0
 --#endregion
@@ -73,7 +74,9 @@ function EnemyService.spawnEnemy(): ()
 end
 
 function EnemyService.removeEnemies(): (number)
+    EnemyService.WaveDebounce = tick()
     local cashPending: number = 0
+
     for _, v in EnemyService.EnemyRemoveQueue do
         cashPending += v.Value
         table.remove(EnemyService.HealthSort, v.HealthIndex)

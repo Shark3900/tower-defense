@@ -23,8 +23,8 @@ export type Spawner = {
 
 --#region Functions
 function Spawner.new(spawnerName: string, position: Vector3): Spawner
-	local self = table.clone(SpawnerData[spawnerName][2])
-    self.Level = 2
+	local self = table.clone(SpawnerData[spawnerName][1])
+    self.Level = 1
     self.Part = game.ServerStorage.Spawners[spawnerName]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
