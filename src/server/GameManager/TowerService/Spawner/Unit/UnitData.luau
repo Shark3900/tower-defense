@@ -1,4 +1,5 @@
 --!strict
+--#region Defintions and Declaration
 type UnitData = {
 	Unit: {
 		MaxHealth: number,
@@ -15,21 +16,18 @@ type UnitData = {
 }
 
 local UnitData = {} :: UnitData
+--#endregion
 
+--#region Units
 UnitData["Melee"] = {
 	{MaxHealth = 30, Speed = 8, SpeedModifier = 1, Distance = 0},
 	{MaxHealth = 45, Speed = 8, SpeedModifier = 1, Distance = 0}
 }
+--#endregion
 
 return UnitData
 
 --[[
-local MeleeDefaults = {
-    MaxHealth = 30,
-    Speed = 8,
-	SpeedModifier = 1,
-	Distance = 0
-}
 local RangedDefaults = {
     MaxHealth = 20,
     Speed = 6,
@@ -42,39 +40,4 @@ local RangedDefaults = {
 	AttackTimer = 0,
 	Range = 10
 }
-
-local function CreateMeleeUnit(name: string, customValues: {}?)
-	local newUnit = {}
-
-	for key, value in pairs(MeleeDefaults) do
-		newUnit[key] = value
-	end
-	if customValues then
-		for key, value in pairs(customValues) do
-			newUnit[key] = value
-		end
-	end
-	UnitTemplates[name] = newUnit
-
-	return newUnit
-end
-
-local function CreateRangedUnit(name: string, customValues: {}?)
-	local newUnit = {}
-
-	for key, value in pairs(RangedDefaults) do
-		newUnit[key] = value
-	end
-	if customValues then
-		for key, value in pairs(customValues) do
-			newUnit[key] = value
-		end
-	end
-	UnitTemplates[name] = newUnit
-
-	return newUnit
-end
-
-CreateMeleeUnit("Melee")
-CreateRangedUnit("Ranged")
 ]]
