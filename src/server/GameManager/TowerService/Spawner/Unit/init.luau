@@ -1,8 +1,8 @@
 --!strict
 --#region Requires & Types
 local UnitTemplates = require(script.UnitTemplates)
-local Maps = require(script.Parent.Parent.EnemyService.Maps)
-local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
+local Maps = require(script.Parent.Parent.Parent.EnemyService.Maps)
+local Enemy = require(script.Parent.Parent.Parent.EnemyService.Enemy)
 local Unit = {}
 Unit.__index = Unit
 

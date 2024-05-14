@@ -2,7 +2,6 @@
 --#region Requires & Types
 local EnemyService = require(script.EnemyService)
 local TowerService = require(script.TowerService)
-local UnitService = require(script.UnitService)
 local PlayerService = require(script.PlayerService)
 local Maps = require(script.EnemyService.Maps)
 
@@ -32,7 +31,8 @@ end
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
-	TowerService.newTower("Chain", Vector3.new(-1, 0.6, 81))
+	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
+    TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
 
     return
 end
@@ -51,22 +51,26 @@ function GameManager.updateLoop(): ()
             EnemyService.spawnEnemy()
         end
         changeHealth(-EnemyService.moveEnemies(dt))
+        if GameManager.Health >= 0 then
+            print("you lose :(")
+            GameManager.Heartbeat:Disconnect()
+        end
         if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
             TowerService.attackEnemies()
         end
         if #TowerService.Spawners > 0 then
-            UnitService.spawnUnits()
-            if #UnitService.Units > 0 then
-                UnitService.moveUnits(dt)
-                UnitService.checkUnitCollision()
+            TowerService.spawnUnits()
+            if #TowerService.Units > 0 then
+                TowerService.moveUnits(dt)
+                TowerService.checkUnitCollision()
             end
         end
         if #EnemyService.EnemyRemoveQueue > 0 then
             PlayerService.CashPending = EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
             PlayerService.distributeCash()
         end
-        if #UnitService.UnitRemoveQueue > 0 then
-            UnitService.removeUnits()
+        if #TowerService.UnitRemoveQueue > 0 then
+            TowerService.removeUnits()
         end
         local endTime: number = os.clock()
         table.insert(GameManager.Benchmark, (endTime - startTime) * 1000)

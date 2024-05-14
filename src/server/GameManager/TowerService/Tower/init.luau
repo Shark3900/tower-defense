@@ -3,31 +3,26 @@
 local TowerTemplates = require(script.TowerTemplates)
 local EnemyService = require(script.Parent.Parent.EnemyService)
 local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
-local Unit = require(script.Parent.Parent.UnitService.Unit)
 local Tower = {}
 Tower.__index = Tower
 
 export type Tower = {
     --Properties
     Part: Part,
+    Level: number,
+    Cost: number,
     Damage: number,
-	Value: number,
+	Range: number,
 	AttackType: string,
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
     AttackQueue: {Enemy.Enemy},
-	Range: number,
-    Chain: number, --If chain attack
-    ChainRange: number, --If chain attack
-    Angle: number, --If cone AOE
-    Radius: number, --If circle AOE
-    Width: number, --If rectangle AOE
-    --Spawner Properties
-    SpawnType: string,
-    SpawnSpeed: number,
-    SpawnTimer: number,
-    Units: {Unit.Unit},
+    Chain: number?, --If chain attack
+    ChainRange: number?, --If chain attack
+    Angle: number?, --If cone AOE
+    Radius: number?, --If circle AOE
+    Width: number?, --If rectangle AOE
     --Flags
 	CanArmored: boolean,
 	CanStealth: boolean,
@@ -46,14 +41,13 @@ export type Tower = {
     BoxAttack: (self: Tower, target: Enemy.Enemy) -> (),
     CircleAttack: (self: Tower, target: Enemy.Enemy) -> (),
     ConeAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    SpawnUnit: (self: Tower) -> (Unit.Unit)
+    ChainAttack: (self: Tower, target: Enemy.Enemy) -> ()
 }
 --#endregion
 
 --#region Functions
 function Tower.new(towerName: string, position: Vector3): Tower
-	local self = table.clone(TowerTemplates[towerName])
+	local self = table.clone(TowerTemplates[towerName][1])
     self.Part = game.ServerStorage.Towers[towerName]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
@@ -224,13 +218,6 @@ function Tower:ChainAttack(target: Enemy.Enemy)
     end
 
     return
-end
-
-function Tower:SpawnUnit(): Unit.Unit
-    self.SpawnTimer = tick()
-    local unit: Unit.Unit = Unit.new(self.SpawnType)
-    table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed
-    return unit
 end
 --#endregion
 

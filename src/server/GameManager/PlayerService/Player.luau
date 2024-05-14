@@ -8,8 +8,8 @@ export type PlayerData = {
     --Properties
     User: Player,
     Cash: number,
-    --Equipped: {string},
-    --Towers: {Tower.Tower},
+    Equipped: {string},
+    Towers: {Tower.Tower},
     --Functions
     new: (playerName: string) -> (PlayerData),
     ChangeCash: (self: PlayerData, value: number) -> (number)
@@ -20,8 +20,12 @@ export type PlayerData = {
 function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData)
     local self = {
         User = player,
-        --Equipped = equipped,
-        Cash = 100
+        Cash = 100,
+        --TODO: Hardcoded, don't leave this
+        Equipped = {
+          "Basic", "Sniper", "Mortar", "Tesla"
+        },
+        Towers = {}
     }
     self.User:SetAttribute("Cash", self.Cash)
 
