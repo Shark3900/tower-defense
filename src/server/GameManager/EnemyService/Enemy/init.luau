@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local EnemyTemplates = require(script.EnemyTemplates)
+local EnemyData = require(script.EnemyData)
 local Maps = require(script.Parent.Maps)
 local Enemy = {}
 Enemy.__index = Enemy
@@ -37,7 +37,7 @@ export type Enemy = {
 
 --#region Functions
 function Enemy.new(enemyName: string): (Enemy)
-	local self = table.clone(EnemyTemplates[enemyName])
+	local self = table.clone(EnemyData[enemyName])
 	self.Health = self.MaxHealth
 	self.Part = game.ServerStorage.Enemies[enemyName]:Clone()
 	self.Part:SetAttribute("Health", self.Health)

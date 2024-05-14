@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local UnitTemplates = require(script.UnitTemplates)
+local UnitData = require(script.UnitData)
 local Maps = require(script.Parent.Parent.Parent.EnemyService.Maps)
 local Enemy = require(script.Parent.Parent.Parent.EnemyService.Enemy)
 local Unit = {}
@@ -41,8 +41,8 @@ export type Unit = {
 --#endregion
 
 --#region Functions
-function Unit.new(unitName: string): (Unit)
-	local self = table.clone(UnitTemplates[unitName])
+function Unit.new(unitName: string, unitLevel: number): (Unit)
+	local self = table.clone(UnitData[unitName][unitLevel])
 	self.Health = self.MaxHealth
 	self.Waypoint = #Maps.Waypoints - 1
 	self.Part = game.ServerStorage.Units[unitName]:Clone()

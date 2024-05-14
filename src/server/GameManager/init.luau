@@ -51,7 +51,7 @@ function GameManager.updateLoop(): ()
             EnemyService.spawnEnemy()
         end
         changeHealth(-EnemyService.moveEnemies(dt))
-        if GameManager.Health >= 0 then
+        if GameManager.Health <= 0 then
             print("you lose :(")
             GameManager.Heartbeat:Disconnect()
         end

@@ -1,6 +1,6 @@
 --!strict
 --#region Defaults
-local EnemyTemplates = {}
+local EnemyData = {}
 local Defaults = {
     MaxHealth = 5,
     Speed = 8,
@@ -23,7 +23,7 @@ local function CreateEnemy(name: string, customValues: {}?)
 			newEnemy[key] = value
 		end
 	end
-	EnemyTemplates[name] = newEnemy
+	EnemyData[name] = newEnemy
 
 	return newEnemy
 end
@@ -35,4 +35,4 @@ CreateEnemy("Fast", {MaxHealth = 3, Speed = 16})
 CreateEnemy("Big", {MaxHealth = 20, Speed = 5})
 --#endregion
 
-return EnemyTemplates
+return EnemyData

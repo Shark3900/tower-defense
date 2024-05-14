@@ -1,5 +1,29 @@
 --!strict
-local UnitTemplates = {}
+type UnitData = {
+	Unit: {
+		MaxHealth: number,
+		Speed: number,
+		SpeedModifier: number,
+		Distance: number,
+		Damage: number?,
+		AttackType: string?,
+		AttackPrio: string?,
+		AttackSpeed: number?,
+		AttackTimer: number?,
+		Range: number?
+	}
+}
+
+local UnitData = {} :: UnitData
+
+UnitData["Melee"] = {
+	{MaxHealth = 30, Speed = 8, SpeedModifier = 1, Distance = 0},
+	{MaxHealth = 45, Speed = 8, SpeedModifier = 1, Distance = 0}
+}
+
+return UnitData
+
+--[[
 local MeleeDefaults = {
     MaxHealth = 30,
     Speed = 8,
@@ -53,6 +77,4 @@ end
 
 CreateMeleeUnit("Melee")
 CreateRangedUnit("Ranged")
---CreateRangedUnit("Ranged", {AttackType = "Circle", Radius = 3, AttackSpeed = 3})
-
-return UnitTemplates
+]]

@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local TowerTemplates = require(script.TowerTemplates)
+local TowerData = require(script.TowerData)
 local EnemyService = require(script.Parent.Parent.EnemyService)
 local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
 local Tower = {}
@@ -47,7 +47,8 @@ export type Tower = {
 
 --#region Functions
 function Tower.new(towerName: string, position: Vector3): Tower
-	local self = table.clone(TowerTemplates[towerName][1])
+	local self = table.clone(TowerData[towerName][1])
+    self.Level = 1
     self.Part = game.ServerStorage.Towers[towerName]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers

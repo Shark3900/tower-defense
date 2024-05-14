@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local SpawnerTemplates = require(script.SpawnerTemplates)
+local SpawnerData = require(script.SpawnerData)
 local Unit = require(script.Unit)
 local Spawner = {}
 Spawner.__index = Spawner
@@ -23,7 +23,8 @@ export type Spawner = {
 
 --#region Functions
 function Spawner.new(spawnerName: string, position: Vector3): Spawner
-	local self = table.clone(SpawnerTemplates[spawnerName][1])
+	local self = table.clone(SpawnerData[spawnerName][2])
+    self.Level = 2
     self.Part = game.ServerStorage.Spawners[spawnerName]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
@@ -40,7 +41,7 @@ end
 
 function Spawner:SpawnUnit(): Unit.Unit
     self.SpawnTimer = tick()
-    local unit: Unit.Unit = Unit.new(self.SpawnType)
+    local unit: Unit.Unit = Unit.new(self.SpawnType, self.Level)
     table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed
     return unit
 end
