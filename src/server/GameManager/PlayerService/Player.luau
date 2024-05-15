@@ -1,9 +1,6 @@
 --!strict
 --#region Requires & Types
 local Tower = require(script.Parent.Parent.TowerService.Tower)
-local Player = {}
-Player.__index = Player
-
 export type PlayerData = {
     --Properties
     User: Player,
@@ -14,6 +11,9 @@ export type PlayerData = {
     new: (playerName: string) -> (PlayerData),
     ChangeCash: (self: PlayerData, value: number) -> (number)
 }
+
+local Player = {}
+Player.__index = Player
 --#endregion
 
 --#region Functions
