@@ -63,6 +63,8 @@ end
 --function TowerService.sellSpawner()
 
 function TowerService.attackEnemies(): ()
+    local damage = 0
+
     for _, tower in TowerService.Towers do
         local debounce: number = tower.AttackSpeed
 
@@ -72,22 +74,22 @@ function TowerService.attackEnemies(): ()
             if target then
                 tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
                 if tower.AttackType == "Direct" then
-                    tower:DirectAttack(target)
+                    damage += tower:DirectAttack(target)
                 elseif tower.AttackType == "Circle" then
-                    tower:CircleAttack(target)
+                    damage += tower:CircleAttack(target)
                 elseif tower.AttackType == "Box" then
-                    tower:BoxAttack(target)
+                    damage += tower:BoxAttack(target)
                 elseif tower.AttackType == "Cone" then
-                    tower:ConeAttack(target)
+                    damage += tower:ConeAttack(target)
                 else
-                    tower:ChainAttack(target)
+                    damage += tower:ChainAttack(target)
                 end
                 EnemyService.sortHealth()
             end
         end
     end
 
-    return
+    return damage
 end
 
 function TowerService.spawnUnits(): ()
@@ -132,23 +134,24 @@ function TowerService.moveUnits(deltaTime: number): ()
     return
 end
 
-function TowerService.checkUnitCollision(): ()
+function TowerService.checkUnitCollision(): (number)
     local unit: Unit.Unit = TowerService.Units[1]
+    local damage = 0
     for _, enemy in EnemyService.DistanceSort do
         if unit.Waypoint == enemy.Waypoint - 1 and unit.Distance > enemy.Distance then
-            TowerService.collide(unit, enemy)
+            damage += TowerService.collide(unit, enemy)
         elseif unit.Waypoint < enemy.Waypoint - 1 then
-            TowerService.collide(unit, enemy)
+            damage += TowerService.collide(unit, enemy)
         else
             break
         end
     end
 
-    return
+    return damage
 end
 
-function TowerService.collide(unit: Unit.Unit, enemy: Enemy.Enemy): (boolean?)
-    local result: boolean? = unit:Collide(enemy)
+function TowerService.collide(unit: Unit.Unit, enemy: Enemy.Enemy): (number)
+    local result: boolean, value: number = unit:Collide(enemy)
     if result == true then
         table.insert(EnemyService.EnemyRemoveQueue, enemy)
     elseif result == false then
@@ -164,7 +167,7 @@ function TowerService.collide(unit: Unit.Unit, enemy: Enemy.Enemy): (boolean?)
         end
     end
 
-    return result
+    return value
 end
 --#endregion
 

@@ -93,13 +93,14 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 	end
 end
 
-function Enemy:ChangeHealth(value): (Enemy?)
-	self.Health += value
-	self.Part:SetAttribute("Health", self.Health)
-	if self.Health > 0 then
-		return self
+function Enemy:ChangeHealth(value): ({(Enemy?) | number})
+	if value >= self.Health then
+		value = self.Health
+		return nil, value
 	else
-		return nil
+		self.Health -= value
+		self.Part:SetAttribute("Health", self.Health)
+		return self, value
 	end
 end
 --#endregion

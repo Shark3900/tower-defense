@@ -31,12 +31,24 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
 
     return setmetatable(self, Player)
 end
---#endregion
 
 function Player:ChangeCash(value: number): (number)
     self.Cash += value
     self.User:SetAttribute("Cash", self.Cash)
     return self
 end
+
+function Player:CheckCash(value: number): (boolean)
+    return self.Cash >= value
+end
+
+function Player:CheckEquipped(towerName: string): (boolean)
+    return table.find(self.Equipped, towerName)
+end
+
+function Player:CheckTowerLim(): (boolean)
+    return #self.Towers < 20
+end
+--#endregion
 
 return Player

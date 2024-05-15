@@ -73,12 +73,10 @@ function EnemyService.spawnEnemy(): ()
     return
 end
 
-function EnemyService.removeEnemies(): (number)
+function EnemyService.removeEnemies(): ()
     EnemyService.WaveDebounce = tick()
-    local cashPending: number = 0
 
     for _, v in EnemyService.EnemyRemoveQueue do
-        cashPending += v.Value
         table.remove(EnemyService.HealthSort, v.HealthIndex)
         EnemyService.sortHealth()
         table.remove(EnemyService.DistanceSort, v.DistanceIndex)
@@ -90,7 +88,7 @@ function EnemyService.removeEnemies(): (number)
 
     table.clear(EnemyService.EnemyRemoveQueue)
 
-    return cashPending
+    return
 end
 
 function EnemyService.moveEnemies(deltaTime: number): (number)

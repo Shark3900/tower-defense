@@ -99,26 +99,27 @@ function Unit:Move(deltaTime: number): (Unit?)
 	end
 end
 
-function Unit:Collide(enemy: Enemy.Enemy): (boolean?)
+function Unit:Collide(enemy: Enemy.Enemy): ((boolean?) | number)
 	if self.Health > enemy.Health then
-		self.Health -= enemy.Health
-		enemy:ChangeHealth(-enemy.Health)
+		local value = enemy.Health
+		self.Health -= value
+		enemy:ChangeHealth(enemy.Health)
 		self.Part:SetAttribute("Health", self.Health)
-		return true
+		return true, value
 	else
-		local result = enemy:ChangeHealth(-self.Health)
+		local result: {Enemy.Enemy}, value: number = enemy:ChangeHealth(self.Health)
 		self.Health = 0
 		if result == nil then
-			return nil
+			return nil, value
 		else
-			return false
+			return false, value
 		end
 	end
 end
 
 function Unit:Attack(enemy: Enemy.Enemy): (Enemy.Enemy?)
     self.AttackTimer = tick()
-    return enemy:ChangeHealth(-self.Damage)
+    return enemy:ChangeHealth(self.Damage)
 end
 
 function Unit:CheckRange(enemy: Enemy.Enemy): (boolean)

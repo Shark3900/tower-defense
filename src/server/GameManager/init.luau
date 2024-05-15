@@ -31,8 +31,8 @@ end
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
-	TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
-    --TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
+	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
+    TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
 
     return
 end
@@ -56,17 +56,20 @@ function GameManager.updateLoop(): ()
             GameManager.Heartbeat:Disconnect()
         end
         if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
-            TowerService.attackEnemies()
+            PlayerService.CashPending += TowerService.attackEnemies()
         end
         if #TowerService.Spawners > 0 then
             TowerService.spawnUnits()
             if #TowerService.Units > 0 then
                 TowerService.moveUnits(dt)
-                TowerService.checkUnitCollision()
+                PlayerService.CashPending += TowerService.checkUnitCollision()
             end
         end
+        if PlayerService.CashPending > 0 then
+            PlayerService.distributeCash()
+        end
         if #EnemyService.EnemyRemoveQueue > 0 then
-            PlayerService.CashPending = EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
+            EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
             PlayerService.distributeCash()
         end
         if #TowerService.UnitRemoveQueue > 0 then
