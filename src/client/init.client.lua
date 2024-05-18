@@ -1,89 +1,119 @@
+--!strict
 --#region Variables
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 mouse.TargetFilter = workspace.Previews
-local playerHUD = player:WaitForChild("PlayerGui"):WaitForChild("PlayerHUD")
-local cashCounter = playerHUD:WaitForChild("CashGUI").Counter
-local healthCounter = playerHUD:WaitForChild("HealthGUI").Counter
-local towerGUI = playerHUD:WaitForChild("Towers")
-local towers = {"Basic", "Sniper", "Tesla", "Mortar"}
-local selectedTower = nil
+local towers = {"Basic", "Sniper", "Tesla", "Mortar"} --TODO: Pass from server event?
 local previewTower = nil
+local selectedTowerToPlace = nil
+local selectedTower = nil
+local UIHandler = require(script.UIHandler)
 --#endregion
---TODO: Not hardcode this
-towerGUI.TowerOne.TextButton.Text, towerGUI.TowerTwo.TextButton.Text, towerGUI.TowerThree.TextButton.Text, towerGUI.TowerFour.TextButton.Text = towers[1], towers[2], towers[3], towers[4]
 
 --#region Functions
-local function updateCash()
-    cashCounter.Text = player:GetAttribute("Cash")
-end
-
-local function updateHealth()
-    healthCounter.Text = workspace:GetAttribute("Health")
-end
-
-local function setTower(key: number)
-    if selectedTower == towers[key] then
-        return
+local function selectPlacedTower(actionName, inputState, _inputObject)
+    if actionName == "SelectPlacedTower" and inputState == Enum.UserInputState.Begin then
+        local target = mouse.Target
+        if target and target.Parent.Name == "Towers" then
+            selectedTower = target
+            --Add UI for selected tower
+            print(`Selected tower {selectedTower}`)
+        end
     end
-
-    if selectedTower then
-        previewTower:Destroy()
-        previewTower = nil
-    end
-
-    selectedTower = towers[key]
-    previewTower = game.ReplicatedStorage.Towers[selectedTower]:Clone()
-    previewTower.Parent = workspace.Previews
-    print(`Selected {selectedTower}`)
+    return
 end
 
 local function deselect(actionName, inputState, _inputObject)
     if actionName == "Deselect" and inputState == Enum.UserInputState.Begin then
-        selectedTower = nil
+        if selectedTowerToPlace then
+            selectedTowerToPlace = nil
+            previewTower:Destroy()
+            previewTower = nil
+            ContextActionService:UnbindAction("PlaceTower")
+            ContextActionService:BindAction("SelectPlacedTower", selectPlacedTower, true, Enum.UserInputType.MouseButton1)
+        end
+        if selectedTower then
+            --Delete UI for selected tower
+            selectedTower = nil
+        end
+    end
+    return
+end
+
+local function placeTower(actionName, inputState, _inputObject)
+    if actionName == "PlaceTower" and inputState == Enum.UserInputState.Begin then
+        local position = mouse.Hit.Position
+        print(`Place {selectedTowerToPlace} at {position}`)
+    end
+    return
+end
+
+local function setTowerPlacement(key: number)
+    if selectedTowerToPlace == towers[key] then
+        return
+    end
+
+    if selectedTowerToPlace then
         previewTower:Destroy()
         previewTower = nil
     end
+
+    ContextActionService:UnbindAction("selectPlacedTower")
+    ContextActionService:BindAction("PlaceTower", placeTower, true, Enum.UserInputType.MouseButton1)
+    selectedTowerToPlace = towers[key]
+    previewTower = game.ReplicatedStorage.Towers[selectedTowerToPlace]:Clone()
+    previewTower.Parent = workspace.Previews
+    print(`Selected {selectedTowerToPlace}`)
+
+    return
 end
 
-local function selectTower(actionName, inputState, _inputObject)
+local function selectTowerToPlace(actionName, inputState, _inputObject)
     if actionName == "SelectOne" and inputState == Enum.UserInputState.Begin then
-        setTower(1)
+        setTowerPlacement(1)
     elseif actionName == "SelectTwo" and inputState == Enum.UserInputState.Begin then
-        setTower(2)
+        setTowerPlacement(2)
     elseif actionName == "SelectThree" and inputState == Enum.UserInputState.Begin then
-        setTower(3)
+        setTowerPlacement(3)
     elseif actionName == "SelectFour" and inputState == Enum.UserInputState.Begin then
-        setTower(4)
+        setTowerPlacement(4)
     end
-end
-
-local function setControls()
-    ContextActionService:BindAction("SelectOne", selectTower, true, Enum.KeyCode.One)
-    ContextActionService:BindAction("SelectTwo", selectTower, true, Enum.KeyCode.Two)
-    ContextActionService:BindAction("SelectThree", selectTower, true, Enum.KeyCode.Three)
-    ContextActionService:BindAction("SelectFour", selectTower, true, Enum.KeyCode.Four)
-    ContextActionService:BindAction("Deselect", deselect, true, Enum.KeyCode.Q)
-end
-
-local function onCharacterAdded()
-    setControls()
+    return
 end
 
 local function drawPreviewTower(position: Vector3)
     previewTower.Position = Vector3.new(position.X, position.Y+0.6, position.Z)
+    return
+end
+
+local function setControls()
+    ContextActionService:BindAction("SelectOne", selectTowerToPlace, true, Enum.KeyCode.One)
+    ContextActionService:BindAction("SelectTwo", selectTowerToPlace, true, Enum.KeyCode.Two)
+    ContextActionService:BindAction("SelectThree", selectTowerToPlace, true, Enum.KeyCode.Three)
+    ContextActionService:BindAction("SelectFour", selectTowerToPlace, true, Enum.KeyCode.Four)
+    ContextActionService:BindAction("Deselect", deselect, true, Enum.KeyCode.Q)
+    ContextActionService:BindAction("SelectPlacedTower", selectPlacedTower, true, Enum.UserInputType.MouseButton1)
+    return
+end
+
+local function onCharacterAdded()
+    UIHandler.updateTowers(towers)
+    setControls()
+    return
 end
 --#endregion
 
---#region Listeners and Hearbeat
-player:GetAttributeChangedSignal("Cash"):Connect(updateCash)
-workspace:GetAttributeChangedSignal("Health"):Connect(updateHealth) --TODO: Move from ScreenGUI to End part?
+--#region Listeners
 player.CharacterAdded:Connect(onCharacterAdded)
 
+if player.Character then
+	onCharacterAdded()
+end
+
 game:GetService("RunService").Heartbeat:Connect(function()
-    if selectedTower then
+    if selectedTowerToPlace then
         drawPreviewTower(mouse.Hit.Position)
     end
 end)

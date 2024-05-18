@@ -23,6 +23,10 @@ PlayerService.Players = {}
 PlayerService.CashPending = 0
 --#endregion
 
+local function validTower(): (boolean)
+    
+end
+
 --#region Functions
 function PlayerService.newPlayer(player: Player): (Player.PlayerData)
     PlayerService.Players[player] = Player.new(player)
