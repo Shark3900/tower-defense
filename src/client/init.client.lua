@@ -18,7 +18,7 @@ local function selectPlacedTower(actionName, inputState, _inputObject)
         local target = mouse.Target
         if target and target.Parent.Name == "Towers" then
             selectedTower = target
-            --Add UI for selected tower
+            --TODO: Add UI for selected tower
             print(`Selected tower {selectedTower}`)
         end
     end
@@ -35,7 +35,7 @@ local function deselect(actionName, inputState, _inputObject)
             ContextActionService:BindAction("SelectPlacedTower", selectPlacedTower, true, Enum.UserInputType.MouseButton1)
         end
         if selectedTower then
-            --Delete UI for selected tower
+            --TODO: Delete UI for selected tower
             selectedTower = nil
         end
     end
@@ -45,6 +45,7 @@ end
 local function placeTower(actionName, inputState, _inputObject)
     if actionName == "PlaceTower" and inputState == Enum.UserInputState.Begin then
         local position = mouse.Hit.Position
+        --TODO: Add remote function to place tower
         print(`Place {selectedTowerToPlace} at {position}`)
     end
     return

@@ -9,7 +9,10 @@ export type PlayerData = {
     Towers: {Tower.Tower},
     --Functions
     new: (playerName: string) -> (PlayerData),
-    ChangeCash: (self: PlayerData, value: number) -> (number)
+    ChangeCash: (self: PlayerData, value: number) -> (PlayerData),
+    CheckCash: (self: PlayerData, value: number) -> (boolean),
+    CheckEquipped: (self: PlayerData, towerName: string) -> (boolean),
+    CheckTowerLim: (self: PlayerData) -> (boolean)
 }
 
 local Player = {}
@@ -21,10 +24,7 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
     local self = {
         User = player,
         Cash = 100,
-        --TODO: Hardcoded, don't leave this
-        Equipped = {
-          "Basic", "Sniper", "Mortar", "Tesla"
-        },
+        Equipped = equipped,
         Towers = {}
     }
     self.User:SetAttribute("Cash", self.Cash)
@@ -32,7 +32,7 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
     return setmetatable(self, Player)
 end
 
-function Player:ChangeCash(value: number): (number)
+function Player:ChangeCash(value: number): (PlayerData)
     self.Cash += value
     self.User:SetAttribute("Cash", self.Cash)
     return self

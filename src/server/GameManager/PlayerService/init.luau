@@ -13,7 +13,7 @@ type PlayerService = {
     --Functions
     newPlayer: (player: Player) -> (Player.PlayerData),
     distributeCash: () -> (),
-    buyTower: (player: Player, towerName: string, position: Vector3) -> ()
+    buyTower: (playerArg: Player, towerName: string, position: Vector3) -> (Tower.Tower?)
 }
 --#endregion
 
@@ -24,12 +24,12 @@ PlayerService.CashPending = 0
 --#endregion
 
 local function validTower(): (boolean)
-    
+
 end
 
 --#region Functions
 function PlayerService.newPlayer(player: Player): (Player.PlayerData)
-    PlayerService.Players[player] = Player.new(player)
+    PlayerService.Players[player] = Player.new(player, {"Basic", "Sniper", "Mortar", "Tesla"}) --TODO: Don't hardcode this
     return PlayerService.Players[player]
 end
 

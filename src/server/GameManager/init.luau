@@ -10,6 +10,7 @@ type GameManager = {
 	Map: {Maps.Map},
     Health: number,
     Benchmark: {number},
+    Heartbeat: RBXScriptConnection,
     --Functions
     start: (map: string) -> (),
     updateLoop: () -> (),

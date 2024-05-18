@@ -24,13 +24,13 @@ export type Tower = {
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
     --Flags
-	CanArmored: boolean,
-	CanStealth: boolean,
-	CanFlying: boolean,
+	CanArmored: boolean?,
+	CanStealth: boolean?,
+	CanFlying: boolean?,
     --Functions
     new: (towerName: string, position: Vector3) -> (Tower),
     Destroy: (self: Tower) -> (),
-    Attack: (self: Tower, enemy: Enemy.Enemy) -> (Enemy.Enemy?),
+    Attack: (self: Tower, enemy: Enemy.Enemy) -> ({result: (Enemy.Enemy?), value: number}),
     AttackLoop: (self: Tower) -> (),
     CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
     FindTarget: (self: Tower) -> (Enemy.Enemy?),

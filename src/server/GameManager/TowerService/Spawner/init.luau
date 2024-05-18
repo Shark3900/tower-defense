@@ -22,7 +22,7 @@ export type Spawner = {
 --#endregion
 
 --#region Functions
-function Spawner.new(spawnerName: string, position: Vector3): Spawner
+function Spawner.new(spawnerName: string, position: Vector3): (Spawner)
 	local self = table.clone(SpawnerData[spawnerName][1])
     self.Level = 1
     self.Part = game.ServerStorage.Spawners[spawnerName]:Clone()
@@ -39,7 +39,7 @@ function Spawner:Destroy(): ()
 	return
 end
 
-function Spawner:SpawnUnit(): Unit.Unit
+function Spawner:SpawnUnit(): (Unit.Unit)
     self.SpawnTimer = tick()
     local unit: Unit.Unit = Unit.new(self.SpawnType, self.Level)
     table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed

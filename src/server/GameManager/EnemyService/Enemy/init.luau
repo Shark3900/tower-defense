@@ -31,7 +31,7 @@ export type Enemy = {
 	new: (enemyName: string) -> (Enemy),
 	Destroy: (self: Enemy) -> (),
 	Move: (self: Enemy, deltaTime: number) -> (Enemy?),
-	ChangeHealth: (self: Enemy, value: number) -> (Enemy?)
+	ChangeHealth: (self: Enemy, value: number) -> ({result: (Enemy?), value: number})
 }
 --#endregion
 
@@ -93,7 +93,7 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 	end
 end
 
-function Enemy:ChangeHealth(value): ({(Enemy?) | number})
+function Enemy:ChangeHealth(value): ({result: (Enemy?), value: number})
 	if value >= self.Health then
 		value = self.Health
 		return nil, value

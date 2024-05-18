@@ -7,13 +7,14 @@ type EnemyService = {
 	Enemies: {Enemy.Enemy},
 	HealthSort: {Enemy.Enemy},
 	DistanceSort: {Enemy.Enemy},
-    EnemyQueue: {{string | number}},
+    EnemyQueue: {{Name: string, Delay: number}},
 	EnemyRemoveQueue: {Enemy.Enemy},
+    WaveDebounce: number,
 	--Functions
-	nextWave: () -> ({{string | number}}?),
+	nextWave: () -> ({{Name: string, Delay: number}}?),
 	spawnEnemy: () -> (),
-	removeEnemies: () -> (number),
-	moveEnemies: (deltaTime: number) -> (),
+	removeEnemies: () -> (),
+	moveEnemies: (deltaTime: number) -> (number),
     sortEnemies: () -> ({Enemy.Enemy}),
     sortHealth: () -> ({Enemy.Enemy}),
     sortDistance: () -> ({Enemy.Enemy})
@@ -33,7 +34,7 @@ local spawnTimer: number = 0
 --#endregion
 
 --#region Functions
-function EnemyService.nextWave(): ({{string | number}}?)
+function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 	waveIndex += 1
 	if Waves[waveIndex] then
 		local wave: {Waves.Group} = Waves[waveIndex]

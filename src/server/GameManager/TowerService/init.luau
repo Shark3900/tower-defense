@@ -13,13 +13,13 @@ type TowerService = {
     UnitRemoveQueue: {Unit.Unit},
     --Functions
     newTower: (towerType: string, position: Vector3) -> (Tower.Tower),
-    newSpawner: (spawnerType: string, position: Vector3) -> (Tower.Tower),
-    attackEnemies: () -> (),
+    newSpawner: (spawnerType: string, position: Vector3) -> (Spawner.Spawner),
+    attackEnemies: () -> (number),
     spawnUnits: () -> (),
     removeUnits: () -> (),
     moveUnits: (deltaTime: number) -> (),
-    checkUnitCollision: () -> (),
-    collide: (unit: Unit.Unit, enemy: Enemy.Enemy) -> ()
+    checkUnitCollision: () -> (number),
+    collide: (unit: Unit.Unit, enemy: Enemy.Enemy) -> (number)
 }
 --#endregion
 
@@ -62,7 +62,7 @@ end
 --function TowerService.sellTower()
 --function TowerService.sellSpawner()
 
-function TowerService.attackEnemies(): ()
+function TowerService.attackEnemies(): (number)
     local damage = 0
 
     for _, tower in TowerService.Towers do

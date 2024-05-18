@@ -34,8 +34,8 @@ export type Unit = {
 	new: (unitName: string) -> (Unit),
 	Destroy: (self: Unit) -> (),
 	Move: (self: Unit, deltaTime: number) -> (Unit?),
-	Collide: (self: Unit, enemy: Enemy.Enemy) -> (boolean?),
-	Attack: (self: Unit, enemy: Enemy.Enemy) -> (Enemy.Enemy?),
+	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
+	Attack: (self: Unit, enemy: Enemy.Enemy) -> ({result: Enemy.Enemy?, value: number}),
 	CheckRange: (self: Unit, enemy: Enemy.Enemy) -> (boolean)
 }
 --#endregion
@@ -99,7 +99,7 @@ function Unit:Move(deltaTime: number): (Unit?)
 	end
 end
 
-function Unit:Collide(enemy: Enemy.Enemy): ((boolean?) | number)
+function Unit:Collide(enemy: Enemy.Enemy): ({result: boolean?, value: number})
 	if self.Health > enemy.Health then
 		local value = enemy.Health
 		self.Health -= value
@@ -117,7 +117,7 @@ function Unit:Collide(enemy: Enemy.Enemy): ((boolean?) | number)
 	end
 end
 
-function Unit:Attack(enemy: Enemy.Enemy): (Enemy.Enemy?)
+function Unit:Attack(enemy: Enemy.Enemy): ({result: Enemy.Enemy?, value: number})
     self.AttackTimer = tick()
     return enemy:ChangeHealth(self.Damage)
 end
