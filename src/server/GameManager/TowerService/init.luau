@@ -123,7 +123,7 @@ end
 
 function TowerService.moveUnits(deltaTime: number): ()
     for _, unit in TowerService.Units do
-        local result: boolean? = unit:Move(deltaTime)
+        local result: Unit.Unit? = unit:Move(deltaTime)
         if result == nil then
             table.insert(TowerService.UnitRemoveQueue, unit)
         end

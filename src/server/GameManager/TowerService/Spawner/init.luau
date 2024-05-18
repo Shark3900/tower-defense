@@ -10,6 +10,7 @@ export type Spawner = {
     Part: Part,
     Level: number,
     Cost: number,
+    AttackType: string,
     SpawnType: string,
     SpawnSpeed: number,
     SpawnTimer: number,

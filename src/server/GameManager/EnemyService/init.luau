@@ -42,9 +42,9 @@ function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 		for _, group in wave do
 			for x = 1, group.Amount do
     	        if x == 1 then
-    	            table.insert(EnemyService.EnemyQueue, {[1] = group.Name, [2] = group.UnitDelay + group.GroupDelay})
+    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Delay = group.UnitDelay + group.GroupDelay})
     	        else
-    	            table.insert(EnemyService.EnemyQueue, {[1] = group.Name, [2] = group.UnitDelay})
+    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Delay = group.UnitDelay})
     	        end
 			end
 		end
@@ -56,12 +56,12 @@ function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 end
 
 function EnemyService.spawnEnemy(): ()
-	local enemy: {string | number} = EnemyService.EnemyQueue[1]
-    local debounce = enemy[2] :: number
+	local enemy: {Name: string, Delay: number} = EnemyService.EnemyQueue[1]
+    local debounce = enemy.Delay
 
     if tick() - spawnTimer > debounce then
         spawnTimer = tick()
-        local newEnemy: Enemy.Enemy = Enemy.new(enemy[1] :: string)
+        local newEnemy: Enemy.Enemy = Enemy.new(enemy.Name)
         table.insert(EnemyService.Enemies, newEnemy)
         newEnemy.Index = #EnemyService.Enemies
         table.insert(EnemyService.HealthSort, newEnemy)

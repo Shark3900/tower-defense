@@ -8,7 +8,7 @@ local Player = require(script.Player)
 
 type PlayerService = {
     --Variables
-    Players: {Player.PlayerData},
+    Players: {Name: Player.PlayerData},
     CashPending: number,
     --Functions
     newPlayer: (player: Player) -> (Player.PlayerData),
@@ -19,7 +19,7 @@ type PlayerService = {
 
 --#region Variables
 local PlayerService = {} :: PlayerService
-PlayerService.Players = {}
+PlayerService.Players = {} --TODO: Convert to dictionary
 PlayerService.CashPending = 0
 --#endregion
 
@@ -29,12 +29,12 @@ end
 
 --#region Functions
 function PlayerService.newPlayer(player: Player): (Player.PlayerData)
-    PlayerService.Players[player] = Player.new(player, {"Basic", "Sniper", "Mortar", "Tesla"}) --TODO: Don't hardcode this
-    return PlayerService.Players[player]
+    PlayerService.Players[player.Name] =  Player.new(player, {"Basic", "Sniper", "Mortar", "Tesla"})
+    return PlayerService.Players[player.Name]
 end
 
 function PlayerService.distributeCash(): ()
-    local disbursement = PlayerService.CashPending / #Players:GetPlayers()
+    local disbursement: number = PlayerService.CashPending / #Players:GetPlayers()
 
     for _, player in PlayerService.Players do
         player:ChangeCash(disbursement)
@@ -46,8 +46,8 @@ function PlayerService.distributeCash(): ()
 end
 
 function PlayerService.buyTower(playerArg: Player, towerName: string, position: Vector3): (Tower.Tower?)
-    local player = table.find(PlayerService.Players, playerArg)
-    local towerCost = Tower.getCost(towerName)
+    local player: Player.PlayerData = PlayerService.Players[playerArg.Name]
+    local towerCost: number? = Tower.getCost(towerName)
     if player:CheckEquipped(towerName) and towerCost and player:CheckCash(towerCost) and player:CheckTowerLim() then
         return TowerService.newTower(towerName, position)
     else
