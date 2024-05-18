@@ -37,11 +37,11 @@ export type Tower = {
     FindFirst: (self: Tower) -> (Enemy.Enemy?),
     FindStrong: (self: Tower) -> (Enemy.Enemy?),
     FindLast: (self: Tower) -> (Enemy.Enemy?),
-    DirectAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    BoxAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (),
-    ChainAttack: (self: Tower, target: Enemy.Enemy) -> ()
+    DirectAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    BoxAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (number)
 }
 --#endregion
 
