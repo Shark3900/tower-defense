@@ -19,10 +19,11 @@ export type Eco = {
 --#endregion
 
 --#region Functions
-function Eco.new(towerName: string): (Eco)
-    local self = table.clone(EcoData[towerName][1])
+function Eco.new(towerName: string, position: Vector3): (Eco)
+	local self = table.clone(EcoData[towerName][1])
     self.Level = 1
-    self.Part = game.ServerStorage.Eco[towerName]:Clone()
+    self.Part = game.ServerStorage.Towers[towerName]:Clone()
+    self.Part.Position = position
     self.Part.Parent = workspace.Towers
     return setmetatable(self, Eco)
 end

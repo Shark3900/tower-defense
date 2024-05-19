@@ -9,10 +9,13 @@ Tower.__index = Tower
 export type Tower = {
     --Properties
     Part: Part,
+    Owner: Player,
     Level: number,
     Limit: number?, --TODO: Implement tower limit
     Cost: number,
+    Value: number,
     Damage: number,
+    DamageDealt: number,
 	Range: number,
 	AttackType: string,
 	AttackPrio: string,
@@ -44,7 +47,8 @@ export type Tower = {
     BoxAttack: (self: Tower, target: Enemy.Enemy) -> (number),
     CircleAttack: (self: Tower, target: Enemy.Enemy) -> (number),
     ConeAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (number)
+    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    getCost: (towerName: string) -> (number?)
 }
 --#endregion
 
@@ -75,7 +79,7 @@ function Tower:AttackLoop(): (number)
     local damage = 0
 
     for _, v in self.AttackQueue do
-        local result: {Enemy.Enemy?}, value: {number} = self:Attack(v)
+        local result: Enemy.Enemy?, value: number = self:Attack(v)
         if result == nil then
             table.insert(EnemyService.EnemyRemoveQueue, v)
         end
@@ -83,6 +87,8 @@ function Tower:AttackLoop(): (number)
     end
 
     table.clear(self.AttackQueue)
+    self.DamageDealt += damage
+    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
 
     return damage
 end

@@ -11,6 +11,7 @@ setmetatable(Unit, Tower)
 export type Unit = {
     --Properties
 	Part: Part,
+	Spawner: {},
 	MaxHealth: number,
 	Health: number,
 	Speed: number,
@@ -18,6 +19,7 @@ export type Unit = {
 	Waypoint: number,
 	Distance: number,
 	Index: number,
+	DamageDealt: number,
 	--Ranged Properties
     Damage: number?,
 	Range: number?,
@@ -97,11 +99,13 @@ function Unit:Collide(enemy: Enemy.Enemy): ({result: boolean?, value: number})
 	if self.Health > enemy.Health then
 		local value = enemy.Health
 		self.Health -= value
+		self.DamageDealt += value
 		enemy:ChangeHealth(enemy.Health)
 		self.Part:SetAttribute("Health", self.Health)
 		return true, value
 	else
 		local result: {Enemy.Enemy}, value: number = enemy:ChangeHealth(self.Health)
+		self.DamageDealt += self.Health
 		self.Health = 0
 		if result == nil then
 			return nil, value

@@ -12,7 +12,9 @@ export type TowerData = {
 		{
 			Limit: number?,
 			Cost: number,
+			Value: number,
 			Damage: number,
+			DamageDealt: number,
 			Range: number,
 			AttackType: string, --Direct, Circle, Box, Cone
 			AttackPrio: string,
@@ -34,6 +36,7 @@ export type TowerData = {
 }
 
 local defaults = {
+	DamageDealt = 0,
 	AttackType = "Direct",
 	AttackPrio = "First",
 	AttackSpeed = 0.68,
@@ -56,7 +59,7 @@ local function CreateTower(name: string, customValues: {}?)
 	for key, value in pairs(towerDefaults) do
         newTower[key] = value
     end
-	
+
     if customValues then
         for key, value in pairs(customValues) do
             newTower[key] = value
@@ -73,6 +76,7 @@ end
 TowerData["Basic"] = {
 	["Defaults"] = {
 		Cost = 100,
+		Value = 100,
 		Damage = 2,
 		Range = 10,
 	}
@@ -80,6 +84,7 @@ TowerData["Basic"] = {
 TowerData["Sniper"] = {
 	["Defaults"] = {
 		Cost = 200,
+		Value = 200,
 		Damage = 10,
 		Range = 20,
 		AttackSpeed = 3
@@ -88,6 +93,7 @@ TowerData["Sniper"] = {
 TowerData["Tesla"] = {
 	["Defaults"] = {
 		Cost = 150,
+		Value = 150,
 		Damage = 1,
 		Range = 10,
 		Chain = 3,
@@ -98,6 +104,7 @@ TowerData["Tesla"] = {
 TowerData["Mortar"] = {
 	["Defaults"] = {
 		Cost = 200,
+		Value = 200,
 		Damage = 5,
 		Range = 10,
 		Radius = 3,
@@ -107,6 +114,7 @@ TowerData["Mortar"] = {
 TowerData["Commander"] = {
 	["Defaults"] = {
 		Cost = 300,
+		Value = 300,
 		Damage = 2,
 		Range = 10,
 		AttackSpeed = 1.36
@@ -115,16 +123,16 @@ TowerData["Commander"] = {
 --#endreigon
 
 CreateTower("Basic")
-CreateTower("Basic", {Cost = 200, Damage = 3, Range = 12, AttackSpeed = 0.5})
+CreateTower("Basic", {Cost = 200, Value = 300, Damage = 3, Range = 12, AttackSpeed = 0.5})
 
 CreateTower("Sniper")
-CreateTower("Sniper", {Cost = 400, Damage = 20, Range = 25, AttackSpeed = 2.7})
+CreateTower("Sniper", {Cost = 400, Value = 600,Damage = 20, Range = 25, AttackSpeed = 2.7})
 
 CreateTower("Tesla")
-CreateTower("Tesla", {Cost = 300, Damage = 2, Chain = 4})
+CreateTower("Tesla", {Cost = 300, Value = 450, Damage = 2, Chain = 4})
 
 CreateTower("Mortar")
-CreateTower("Mortar", {Cost = 400, Damage = 8, Radius = 4})
+CreateTower("Mortar", {Cost = 400, Value = 600, Damage = 8, Radius = 4})
 
 
 return TowerData

@@ -11,6 +11,8 @@ export type Spawner = {
     Level: number,
     Limit: number?,
     Cost: number,
+    Value: number,
+    DamageDealt: number,
     AttackType: string,
     SpawnType: string,
     SpawnSpeed: number,
@@ -19,7 +21,8 @@ export type Spawner = {
     --Functions
     new: (towerName: string, position: Vector3) -> (Spawner),
     Destroy: (self: Spawner) -> (),
-    SpawnUnit: (self: Spawner) -> (Unit.Unit)
+    SpawnUnit: (self: Spawner) -> (Unit.Unit),
+    RemoveUnit: (self: Spawner) -> ()
 }
 --#endregion
 
@@ -44,8 +47,18 @@ end
 function Spawner:SpawnUnit(): (Unit.Unit)
     self.SpawnTimer = tick()
     local unit: Unit.Unit = Unit.new(self.SpawnType, self.Level)
+    unit.Spawner = self
     table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed
     return unit
+end
+
+function Spawner:RemoveUnit(): ()
+    local unit: Unit.Unit = self.Units[1]
+    table.remove(self.Units, 1)
+    self.DamageDealt += unit.DamageDealt
+    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+    unit:Destroy()
+    return
 end
 --#endregion
 

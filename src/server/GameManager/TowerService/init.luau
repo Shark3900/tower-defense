@@ -16,19 +16,22 @@ export type TowerService = {
     UnitRemoveQueue: {Unit.Unit},
     --Functions
     newTower: (towerType: string, position: Vector3) -> (Tower.Tower),
+    newEcoTower: (towerType: string, position: Vector3) -> (Eco.Eco),
     newSpawner: (spawnerType: string, position: Vector3) -> (Spawner.Spawner),
     attackEnemies: () -> (number),
     spawnUnits: () -> (),
     removeUnits: () -> (),
     moveUnits: (deltaTime: number) -> (),
     checkUnitCollision: () -> (number),
-    collide: (unit: Unit.Unit, enemy: Enemy.Enemy) -> (number)
+    collide: (unit: Unit.Unit, enemy: Enemy.Enemy) -> (number),
+    updateSpawnerDamageDealt: () -> ()
 }
 --#endregion
 
 --#region Variables
 local TowerService = {} :: TowerService
 TowerService.Towers = {}
+TowerService.EcoTowers = {}
 TowerService.Spawners = {}
 TowerService.Units = {}
 TowerService.UnitRemoveQueue = {}
@@ -49,15 +52,20 @@ end
 --#endregion
 
 --#region Functions
-function TowerService.newTower(towerType: string, position: Vector3): (Tower.Tower)
-    --TODO: Implement economy
-    local tower = Tower.new(towerType, position)
+function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower)
+    local tower = Tower.new(towerName, position)
     table.insert(TowerService.Towers, tower)
     return tower
 end
 
-function TowerService.newSpawner(spawnerType: string, position: Vector3): (Spawner.Spawner)
-    local spawner = Spawner.new(spawnerType, position)
+function TowerService.newEcoTower(towerName: string, position: Vector3): (Eco.Eco)
+    local eco = Eco.new(towerName, position)
+    table.insert(TowerService.EcoTowers, eco)
+    return eco
+end
+
+function TowerService.newSpawner(spawnerName: string, position: Vector3): (Spawner.Spawner)
+    local spawner = Spawner.new(spawnerName, position)
     table.insert(TowerService.Spawners, spawner)
     return spawner
 end
@@ -113,10 +121,11 @@ function TowerService.spawnUnits(): ()
     return
 end
 
+--TODO: Just removes first Unit, likely won't work with units of different speeds
 function TowerService.removeUnits(): ()
     for i, v in TowerService.UnitRemoveQueue do
         table.remove(TowerService.Units, i)
-        v:Destroy()
+        v.Spawner:RemoveUnit()
     end
 
     table.clear(TowerService.UnitRemoveQueue)

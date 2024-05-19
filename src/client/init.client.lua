@@ -1,22 +1,25 @@
 --!strict
 --#region Variables
+local UIHandler = require(script.UIHandler)
 local ContextActionService = game:GetService("ContextActionService")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 mouse.TargetFilter = workspace.Previews
+
+local buyTower: RemoteEvent = game.ReplicatedStorage.Events.BuyTower
+
 local towers = {"Basic", "Sniper", "Tesla", "Mortar"} --TODO: Pass from server event?
 local previewTower = nil
 local selectedTowerToPlace = nil
 local selectedTower = nil
-local UIHandler = require(script.UIHandler)
 --#endregion
 
 --#region Functions
 local function selectPlacedTower(actionName, inputState, _inputObject)
     if actionName == "SelectPlacedTower" and inputState == Enum.UserInputState.Begin then
         local target = mouse.Target
-        if target and target.Parent.Name == "Towers" then
+        if target and target.Parent.Name == "Towers" and target:GetAttribute("Owner") == player.Name then
             selectedTower = target
             --TODO: Add UI for selected tower
             print(`Selected tower {selectedTower}`)
@@ -44,9 +47,9 @@ end
 
 local function placeTower(actionName, inputState, _inputObject)
     if actionName == "PlaceTower" and inputState == Enum.UserInputState.Begin then
-        local position = mouse.Hit.Position
-        --TODO: Add remote function to place tower
-        print(`Place {selectedTowerToPlace} at {position}`)
+        local position = mouse.Hit.Position + Vector3.new(0, 0.6, 0)
+        buyTower:FireServer(selectedTowerToPlace, position)
+        --print(`Place {selectedTowerToPlace} at {position}`)
     end
     return
 end

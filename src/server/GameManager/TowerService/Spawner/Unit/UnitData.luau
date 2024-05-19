@@ -9,6 +9,7 @@ export type UnitData = {
 			Speed: number,
 			SpeedModifier: number,
 			Distance: number,
+			DamageDealt: number,
 			--Ranged Properties
 			Damage: number?,
 			Range: number?,
@@ -26,9 +27,9 @@ export type UnitData = {
 			Radius: number?, --If circle AOE
 			Width: number?, --If rectangle AOE
 			--Flags
-			Stunned: boolean,
-			Slowed: boolean,
-			Flying: boolean
+			Stunned: boolean?,
+			Slowed: boolean?,
+			Flying: boolean?
 		}
 	}
 }
@@ -36,9 +37,15 @@ export type UnitData = {
 local defaults = {
 	SpeedModifier = 1,
 	Distance = 0,
-	Stunned = false,
-	Slowed = false,
-	Flying = false
+	DamageDealt = 0
+}
+
+local rangedDefaults = {
+	AttackType = "Direct",
+	AttackPrio = "First",
+	AttackSpeed = 0.68,
+	AttackTimer = 0,
+	AttackQueue = {}
 }
 
 local UnitData = {} :: UnitData
@@ -56,7 +63,34 @@ local function CreateUnit(name: string, customValues: {}?)
 	for key, value in pairs(unitDefaults) do
         newUnit[key] = value
     end
-	
+
+    if customValues then
+        for key, value in pairs(customValues) do
+            newUnit[key] = value
+        end
+    end
+
+    UnitData[name][#UnitData[name] + 1] = newUnit
+
+    return newUnit
+end
+
+local function CreateRangedUnit(name: string, customValues: {}?)
+    local newUnit = {}
+	local unitDefaults = UnitData[name]["Defaults"]
+
+    for key, value in pairs(defaults) do
+        newUnit[key] = value
+    end
+
+	for key, value in pairs(rangedDefaults) do
+        newUnit[key] = value
+    end
+
+	for key, value in pairs(unitDefaults) do
+        newUnit[key] = value
+    end
+
     if customValues then
         for key, value in pairs(customValues) do
             newUnit[key] = value
@@ -84,11 +118,6 @@ UnitData["Rifles"] = {
 		Speed = 6,
 		Damage = 1,
 		Range = 10,
-		AttackType = "Direct",
-		AttackPrio = "First",
-		AttackSpeed = 0.68,
-		AttackTimer = 0,
-		AttackQueue = {},
 	}
 }
 --#endreigon
@@ -96,7 +125,7 @@ UnitData["Rifles"] = {
 CreateUnit("Melee")
 CreateUnit("Melee", {MaxHealth = 45})
 
-CreateUnit("Rifles")
-CreateUnit("Rifles", {Damage = 2, Range = 12, AttackSpeed = 0.6})
+CreateRangedUnit("Rifles")
+CreateRangedUnit("Rifles", {Damage = 2, Range = 12, AttackSpeed = 0.6})
 
 return UnitData

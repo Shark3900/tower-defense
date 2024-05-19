@@ -5,6 +5,8 @@ export type SpawnerData = {
 		{
             Limit: number?,
 			Cost: number,
+            Value: number,
+            DamageDealt: number,
             AttackType: string,
             SpawnType: string,
             SpawnSpeed: number,
@@ -15,6 +17,7 @@ export type SpawnerData = {
 }
 
 local defaults = {
+    DamageDealt = 0,
     SpawnTimer = 0,
     Units = {}
 }
@@ -34,7 +37,7 @@ local function CreateTower(name: string, customValues: {}?)
 	for key, value in pairs(towerDefaults) do
         newTower[key] = value
     end
-    
+
     if customValues then
         for key, value in pairs(customValues) do
             newTower[key] = value
@@ -51,6 +54,7 @@ end
 SpawnerData["Melee"] = {
 	["Defaults"] = {
 		Cost = 100,
+        Value = 100,
         AttackType = "Melee",
         SpawnType = "Melee",
         SpawnSpeed = 20,
@@ -59,6 +63,7 @@ SpawnerData["Melee"] = {
 SpawnerData["Rifles"] = {
 	["Defaults"] = {
 		Cost = 200,
+        Value = 200,
         AttackType = "Ranged",
         SpawnType = "Rifles",
         SpawnSpeed = 30,
@@ -67,9 +72,9 @@ SpawnerData["Rifles"] = {
 --#endreigon
 
 CreateTower("Melee")
-CreateTower("Melee", {Cost = 200})
+CreateTower("Melee", {Cost = 200, Value = 400})
 
 CreateTower("Rifles")
-CreateTower("Rifles", {Cost = 400})
+CreateTower("Rifles", {Cost = 400, Value = 600})
 
 return SpawnerData
