@@ -10,25 +10,25 @@ export type Buff = {
 export type TowerData = {
 	Tower: {
 		{
+			Limit: number?,
 			Cost: number,
 			Damage: number,
-			Limit: number?,
 			Range: number,
-			AttackType: string,
+			AttackType: string, --Direct, Circle, Box, Cone
 			AttackPrio: string,
 			AttackSpeed: number,
 			AttackTimer: number,
 			AttackQueue: {},
-			CanArmored: boolean,
-			CanStealth: boolean,
-			CanFlying: boolean,
+			CanArmored: boolean?,
+			CanStealth: boolean?,
+			CanFlying: boolean?,
 			Chain: number?, --If chain attack
 			ChainRange: number?, --If chain attack
 			Angle: number?, --If cone AOE
 			Radius: number?, --If circle AOE
 			Width: number?, --If rectangle AOE
-			Buffs: {}, --If support tower
-			BuffedTowers: {}, --If support tower
+			Buffs: {}?, --If support tower
+			BuffedTowers: {}?, --If support tower
 		}
 	}
 }
@@ -52,9 +52,11 @@ local function CreateTower(name: string, customValues: {}?)
     for key, value in pairs(defaults) do
         newTower[key] = value
     end
+
 	for key, value in pairs(towerDefaults) do
         newTower[key] = value
     end
+	
     if customValues then
         for key, value in pairs(customValues) do
             newTower[key] = value

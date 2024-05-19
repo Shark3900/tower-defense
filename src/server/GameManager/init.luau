@@ -33,7 +33,7 @@ function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
     --I'm sinning, don't forget about this
 	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
-    TowerService.newSpawner("Melee", Vector3.new(-1, 0.6, 81))
+    TowerService.newSpawner("Rifles", Vector3.new(-1, 0.6, 81))
 
     return
 end

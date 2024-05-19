@@ -1,12 +1,10 @@
 --!strict
---#region Defintions and Declaration
-local SpawnerData = {} :: SpawnerData
-
+--#region Definitions and Declaration
 export type SpawnerData = {
-	Tower: {
+	Spawner: {
 		{
+            Limit: number?,
 			Cost: number,
-			Damage: number,
             AttackType: string,
             SpawnType: string,
             SpawnSpeed: number,
@@ -15,17 +13,63 @@ export type SpawnerData = {
 		}
 	}
 }
+
+local defaults = {
+    SpawnTimer = 0,
+    Units = {}
+}
+
+local SpawnerData = {} :: SpawnerData
 --#endregion
 
---#region Spawners
+--#region Functions
+local function CreateTower(name: string, customValues: {}?)
+    local newTower = {}
+	local towerDefaults = SpawnerData[name]["Defaults"]
+
+    for key, value in pairs(defaults) do
+        newTower[key] = value
+    end
+
+	for key, value in pairs(towerDefaults) do
+        newTower[key] = value
+    end
+    
+    if customValues then
+        for key, value in pairs(customValues) do
+            newTower[key] = value
+        end
+    end
+
+    SpawnerData[name][#SpawnerData[name] + 1] = newTower
+
+    return newTower
+end
+--#endregion
+
+--#region Towers
 SpawnerData["Melee"] = {
-    {Cost = 100, Damage = 1, AttackType = "Melee", SpawnType = "Melee", SpawnSpeed = 20, SpawnTimer = 0, Units = {}},
-    {Cost = 200, Damage = 3, AttackType = "Melee", SpawnType = "Melee", SpawnSpeed = 20, SpawnTimer = 0, Units = {}}
+	["Defaults"] = {
+		Cost = 100,
+        AttackType = "Melee",
+        SpawnType = "Melee",
+        SpawnSpeed = 20,
+	}
 }
 SpawnerData["Rifles"] = {
-    {Cost = 200, Damage = 10, AttackType = "Ranged", SpawnType = "Rifles", SpawnSpeed = 30, SpawnTimer = 0, Units = {}},
-    {Cost = 400, Damage = 20, AttackType = "Ranged", SpawnType = "Rifles", SpawnSpeed = 30, SpawnTimer = 0, Units = {}}
+	["Defaults"] = {
+		Cost = 200,
+        AttackType = "Ranged",
+        SpawnType = "Rifles",
+        SpawnSpeed = 30,
+	}
 }
---#endregion
+--#endreigon
+
+CreateTower("Melee")
+CreateTower("Melee", {Cost = 200})
+
+CreateTower("Rifles")
+CreateTower("Rifles", {Cost = 400})
 
 return SpawnerData

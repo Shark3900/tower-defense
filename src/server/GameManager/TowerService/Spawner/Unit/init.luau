@@ -3,8 +3,10 @@
 local UnitData = require(script.UnitData)
 local Maps = require(script.Parent.Parent.Parent.EnemyService.Maps)
 local Enemy = require(script.Parent.Parent.Parent.EnemyService.Enemy)
+local Tower = require(script.Parent.Parent.Tower)
 local Unit = {}
 Unit.__index = Unit
+setmetatable(Unit, Tower)
 
 export type Unit = {
     --Properties
@@ -17,26 +19,26 @@ export type Unit = {
 	Distance: number,
 	Index: number,
 	--Ranged Properties
-    Damage: number,
-	AttackType: string,
-	AttackPrio: string,
-	AttackSpeed: number,
-	AttackTimer: number,
-	Range: number,
-    Angle: number, --If cone AOE
-    Radius: number, --If circle AOE
-    Width: number, --If rectangle AOE
+    Damage: number?,
+	Range: number?,
+	AttackType: string?,
+	AttackPrio: string?,
+	AttackSpeed: number?,
+	AttackTimer: number?,
+    AttackQueue: {Enemy.Enemy}?,
+    Chain: number?, --If chain attack
+    ChainRange: number?, --If chain attack
+    Angle: number?, --If cone AOE
+    Radius: number?, --If circle AOE
+    Width: number?, --If rectangle AOE
 	--Flags
 	Stunned: boolean,
 	Slowed: boolean,
 	Flying: boolean,
 	--Functions
 	new: (unitName: string) -> (Unit),
-	Destroy: (self: Unit) -> (),
 	Move: (self: Unit, deltaTime: number) -> (Unit?),
 	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
-	Attack: (self: Unit, enemy: Enemy.Enemy) -> ({result: Enemy.Enemy?, value: number}),
-	CheckRange: (self: Unit, enemy: Enemy.Enemy) -> (boolean)
 }
 --#endregion
 
@@ -57,14 +59,6 @@ function Unit.new(unitName: string, unitLevel: number): (Unit)
 	end)
 
 	return setmetatable(self, Unit)
-end
-
-function Unit:Destroy(): ()
-    self.Part:Destroy()
-    setmetatable(self, nil)
-    table.clear(self)
-    table.freeze(self)
-	return
 end
 
 function Unit:Move(deltaTime: number): (Unit?)
@@ -115,19 +109,6 @@ function Unit:Collide(enemy: Enemy.Enemy): ({result: boolean?, value: number})
 			return false, value
 		end
 	end
-end
-
-function Unit:Attack(enemy: Enemy.Enemy): ({result: Enemy.Enemy?, value: number})
-    self.AttackTimer = tick()
-    return enemy:ChangeHealth(self.Damage)
-end
-
-function Unit:CheckRange(enemy: Enemy.Enemy): (boolean)
-    if (enemy.Part.Position - self.Part.Position).Magnitude <= self.Range then
-        return true
-    else
-        return false
-    end
 end
 --#endregion
 
