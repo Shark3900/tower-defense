@@ -9,6 +9,7 @@ export type Spawner = {
     --Properties
     Part: Part,
     Level: number,
+    Limit: number?,
     Cost: number,
     AttackType: string,
     SpawnType: string,

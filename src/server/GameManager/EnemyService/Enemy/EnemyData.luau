@@ -1,5 +1,7 @@
 --!strict
 --#region Defintions and Declaration
+local EnemyData = {}
+
 type EnemyData = {
 	MaxHealth: number,
 	Speed: number,
@@ -8,8 +10,6 @@ type EnemyData = {
 	Waypoint: number,
 	Distance: number
 }
-
-local EnemyData = {}
 --#endregion
 
 --#region Enemies

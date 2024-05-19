@@ -1,3 +1,4 @@
+--!strict
 export type Map = {
     [string]: {
         ["Map"]: {},

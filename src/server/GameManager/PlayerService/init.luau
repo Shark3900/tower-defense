@@ -6,7 +6,7 @@ local Tower = require(script.Parent.TowerService.Tower)
 local Players = game:GetService("Players")
 local Player = require(script.Player)
 
-type PlayerService = {
+export type PlayerService = {
     --Variables
     Players: {Name: Player.PlayerData},
     CashPending: number,

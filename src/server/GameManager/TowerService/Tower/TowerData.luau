@@ -1,16 +1,19 @@
 --!strict
 --#region Definitions and Declaration
-type TowerData = {
+export type Buff = {
+    DamageModifier: number?,
+    SpeedModifier: number?,
+    RangeModifier: number?,
+    SpawnModifier: number? --Should Spawns be a separate buff?
+}
+
+export type TowerData = {
 	Tower: {
 		{
 			Cost: number,
 			Damage: number,
+			Limit: number?,
 			Range: number,
-			Chain: number?,
-			ChainRange: number?,
-			Angle: number?,
-			Radius: number?,
-			Width: number?,
 			AttackType: string,
 			AttackPrio: string,
 			AttackSpeed: number,
@@ -18,7 +21,14 @@ type TowerData = {
 			AttackQueue: {},
 			CanArmored: boolean,
 			CanStealth: boolean,
-			CanFlying: boolean
+			CanFlying: boolean,
+			Chain: number?, --If chain attack
+			ChainRange: number?, --If chain attack
+			Angle: number?, --If cone AOE
+			Radius: number?, --If circle AOE
+			Width: number?, --If rectangle AOE
+			Buffs: {}, --If support tower
+			BuffedTowers: {}, --If support tower
 		}
 	}
 }
@@ -90,6 +100,14 @@ TowerData["Mortar"] = {
 		Range = 10,
 		Radius = 3,
 		AttackType = "Circle"
+	}
+}
+TowerData["Commander"] = {
+	["Defaults"] = {
+		Cost = 300,
+		Damage = 2,
+		Range = 10,
+		AttackSpeed = 1.36
 	}
 }
 --#endreigon

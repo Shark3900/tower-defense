@@ -3,11 +3,14 @@
 local EnemyService = require(script.Parent.EnemyService)
 local Enemy = require(script.Parent.EnemyService.Enemy)
 local Tower = require(script.Tower)
+local Eco = require(script.Eco)
 local Spawner = require(script.Spawner)
 local Unit = require(script.Spawner.Unit)
-type TowerService = {
+
+export type TowerService = {
     --Properties
     Towers: {Tower.Tower},
+    EcoTowers: {Eco.Eco},
     Spawners: {Spawner.Spawner},
     Units: {Unit.Unit},
     UnitRemoveQueue: {Unit.Unit},

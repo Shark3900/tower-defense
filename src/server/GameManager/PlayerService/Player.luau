@@ -1,6 +1,7 @@
 --!strict
 --#region Requires & Types
 local Tower = require(script.Parent.Parent.TowerService.Tower)
+
 export type PlayerData = {
     --Properties
     User: Player,

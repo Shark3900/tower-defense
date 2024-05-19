@@ -10,6 +10,7 @@ export type Tower = {
     --Properties
     Part: Part,
     Level: number,
+    Limit: number?, --TODO: Implement tower limit
     Cost: number,
     Damage: number,
 	Range: number,
@@ -23,6 +24,8 @@ export type Tower = {
     Angle: number?, --If cone AOE
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
+    Buffs: {TowerData.Buff}?, --If support tower
+    BuffedTowers: {Tower}?, --If support tower
     --Flags
 	CanArmored: boolean?,
 	CanStealth: boolean?,

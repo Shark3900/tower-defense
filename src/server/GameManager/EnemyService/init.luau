@@ -2,7 +2,8 @@
 --#region Requires & Types
 local Enemy = require(script.Enemy)
 local Waves = require(script.Waves)
-type EnemyService = {
+
+export type EnemyService = {
 	--Variables
 	Enemies: {Enemy.Enemy},
 	HealthSort: {Enemy.Enemy},

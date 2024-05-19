@@ -1,6 +1,8 @@
 --!strict
 --#region Defintions and Declaration
-type SpawnerData = {
+local SpawnerData = {} :: SpawnerData
+
+export type SpawnerData = {
 	Tower: {
 		{
 			Cost: number,
@@ -13,8 +15,6 @@ type SpawnerData = {
 		}
 	}
 }
-
-local SpawnerData = {} :: SpawnerData
 --#endregion
 
 --#region Spawners
