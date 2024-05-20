@@ -19,7 +19,7 @@ export type PlayerService = {
 
 --#region Variables
 local PlayerService = {} :: PlayerService
-PlayerService.Players = {} --TODO: Convert to dictionary
+PlayerService.Players = {} --TODO: Convert to dictionary?
 PlayerService.CashPending = 0
 --#endregion
 

@@ -9,12 +9,13 @@ export type PlayerData = {
     User: Player,
     Cash: number,
     Equipped: {string},
-    Towers: {Tower.Tower | Spawner.Spawner},
+    Towers: {Tower.Tower},
     EcoTowers: {Eco.Eco},
+    Spawners: {Spawner.Spawner},
     Limit: number,
     --Functions
     new: (playerName: string) -> (PlayerData),
-    AddTower: (self: PlayerData, tower: {Tower.Tower | Spawner.Spawner}) -> (),
+    AddTower: (self: PlayerData, tower: Tower.Tower) -> (),
     AddEcoTower: (self: PlayerData, tower: Eco.Eco) -> (),
     ChangeNumTowers: (self: PlayerData) -> (),
     ChangeCash: (self: PlayerData, value: number) -> (PlayerData),
@@ -36,6 +37,7 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
         Equipped = equipped,
         Towers = {},
         EcoTowers = {},
+        Spawners = {},
         Limit = 20
     }
     self.User:SetAttribute("Cash", self.Cash)
@@ -45,20 +47,25 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
     return setmetatable(self, Player)
 end
 
-function Player:AddTower(tower: {Tower.Tower | Spawner.Spawner}): ()
-    self:ChangeCash(-tower.Cost)
-    table.insert(self.Towers, tower)
+function Player:AddTower(tower: Tower.Tower?, ecoTower: Eco.Eco?, spawner: Spawner.Spawner?): ()
+    if tower then
+        self:ChangeCash(-tower.Cost)
+        table.insert(self.Towers, tower)
+        tower.Owner = self.User
+    elseif ecoTower then
+        self:ChangeCash(-ecoTower.Cost)
+        table.insert(self.EcoTowers, ecoTower)
+        ecoTower.Owner = self.User
+    elseif spawner then
+        self:ChangeCash(-spawner.Cost)
+        table.insert(self.Spawners, spawner)
+        spawner.Owner = self.User
+    end
     self:ChangeNumTowers()
     return
 end
 
-function Player:AddEcoTower(tower: Eco.Eco): ()
-    table.insert(self.EcoTowers, tower)
-    self:ChangeNumTowers()
-    return
-end
-
-function Player:SellTower(tower: {Tower.Tower | Spawner.Spawner}): ()
+function Player:SellTower(tower: {Tower.Tower | Spawner.Spawner | Eco.Eco}): ()
     if table.find(self.Towers, tower) then
         self:ChangeCash(tower.Value * 0.75)
         table.remove(self.Towers, table.find(self.Towers, tower))

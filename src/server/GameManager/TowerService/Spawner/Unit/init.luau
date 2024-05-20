@@ -19,6 +19,7 @@ export type Unit = {
 	Waypoint: number,
 	Distance: number,
 	Index: number,
+	UnitIndex: number,
 	DamageDealt: number,
 	--Ranged Properties
     Damage: number?,

@@ -8,6 +8,9 @@ Spawner.__index = Spawner
 export type Spawner = {
     --Properties
     Part: Part,
+    Index: number,
+    Owner: Player,
+    --OwnerIndex: number,
     Level: number,
     Limit: number?,
     Cost: number,
@@ -37,6 +40,9 @@ function Spawner.new(spawnerName: string, position: Vector3): (Spawner)
 end
 
 function Spawner:Destroy(): ()
+    for _, unit in self.Units do
+        unit:Destroy()
+    end
 	self.Part:Destroy()
 	setmetatable(self, nil)
 	table.clear(self)
@@ -48,7 +54,7 @@ function Spawner:SpawnUnit(): (Unit.Unit)
     self.SpawnTimer = tick()
     local unit: Unit.Unit = Unit.new(self.SpawnType, self.Level)
     unit.Spawner = self
-    table.insert(self.Units, unit) --TODO: Delete units when tower is sold/destroyed
+    table.insert(self.Units, unit)
     return unit
 end
 

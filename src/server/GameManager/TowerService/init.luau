@@ -55,18 +55,21 @@ end
 function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower)
     local tower = Tower.new(towerName, position)
     table.insert(TowerService.Towers, tower)
+    tower.Index = #TowerService.Towers
     return tower
 end
 
 function TowerService.newEcoTower(towerName: string, position: Vector3): (Eco.Eco)
     local eco = Eco.new(towerName, position)
     table.insert(TowerService.EcoTowers, eco)
+    eco.Index = #TowerService.EcoTowers
     return eco
 end
 
 function TowerService.newSpawner(spawnerName: string, position: Vector3): (Spawner.Spawner)
     local spawner = Spawner.new(spawnerName, position)
     table.insert(TowerService.Spawners, spawner)
+    spawner.Index = #TowerService.Spawners
     return spawner
 end
 
@@ -108,12 +111,15 @@ function TowerService.spawnUnits(): ()
         local debounce: number = spawner.SpawnSpeed
         if tick() - spawner.SpawnTimer > debounce then
             if spawner.AttackType == "Melee" then
-                table.insert(TowerService.Units, spawner:SpawnUnit())
+                local unit: Unit.Unit = spawner:SpawnUnit()
+                table.insert(TowerService.Units, unit)
+                unit.UnitIndex = #TowerService.Units
             else
                 local unit: Unit.Unit = spawner:SpawnUnit()
                 table.insert(TowerService.Units, unit)
                 table.insert(TowerService.Towers, unit)
                 unit.Index = #TowerService.Towers
+                unit.UnitIndex = #TowerService.Units
             end
         end
     end
@@ -121,10 +127,9 @@ function TowerService.spawnUnits(): ()
     return
 end
 
---TODO: Just removes first Unit, likely won't work with units of different speeds
 function TowerService.removeUnits(): ()
     for i, v in TowerService.UnitRemoveQueue do
-        table.remove(TowerService.Units, i)
+        table.remove(TowerService.Units, v.UnitIndex)
         v.Spawner:RemoveUnit()
     end
 

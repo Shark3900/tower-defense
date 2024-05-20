@@ -7,6 +7,9 @@ Eco.__index = Eco
 export type Eco = {
     --Properties
     Part: Part,
+    Index: number,
+    Owner: Player,
+    --OwnerIndex: number,
     Level: number,
     Limit: number?,
     Cost: number,

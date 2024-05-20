@@ -9,7 +9,9 @@ Tower.__index = Tower
 export type Tower = {
     --Properties
     Part: Part,
+    Index: number,
     Owner: Player,
+    --OwnerIndex: number,
     Level: number,
     Limit: number?, --TODO: Implement tower limit
     Cost: number,
