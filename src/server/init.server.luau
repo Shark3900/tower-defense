@@ -3,7 +3,7 @@
 local GameManager = require(script.GameManager)
 
 GameManager.start("TestMap")
-task.wait(3)
+task.wait(6)
 GameManager.updateLoop()
---task.wait(60)
+--task.wait(90)
 --GameManager.getAverageBenchmark()

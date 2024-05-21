@@ -1,9 +1,9 @@
 --!strict
 --#region Requires & Types
-local UnitData = require(script.UnitData)
-local Maps = require(script.Parent.Parent.Parent.EnemyService.Maps)
-local Enemy = require(script.Parent.Parent.Parent.EnemyService.Enemy)
-local Tower = require(script.Parent.Parent.Tower)
+local TowerData = require(script.Parent.TowerData)
+local Maps = require(script.Parent.Parent.EnemyService.Maps)
+local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
+local Tower = require(script.Parent.Tower)
 local Unit = {}
 Unit.__index = Unit
 setmetatable(Unit, Tower)
@@ -12,6 +12,7 @@ export type Unit = {
     --Properties
 	Part: Part,
 	Spawner: {},
+	Name: string,
 	MaxHealth: number,
 	Health: number,
 	Speed: number,
@@ -47,7 +48,7 @@ export type Unit = {
 
 --#region Functions
 function Unit.new(unitName: string, unitLevel: number): (Unit)
-	local self = table.clone(UnitData[unitName][unitLevel])
+	local self = table.clone(TowerData[unitName][unitLevel])
 	self.Health = self.MaxHealth
 	self.Waypoint = #Maps.Waypoints - 1
 	self.Part = game.ServerStorage.Units[unitName]:Clone()

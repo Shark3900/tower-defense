@@ -43,7 +43,7 @@ end
 
 function PlayerService.buyTower(playerArg: Player, towerName: string, position: Vector3): (Tower.Tower?)
     local player: Player.PlayerData = PlayerService.Players[playerArg.Name]
-    local towerCost: number? = Tower.getCost(towerName)
+    local towerCost: number? = TowerService.getCost(towerName)
     if towerCost and player:ValidTower(towerName, towerCost) then
         local newTower = TowerService.newTower(towerName, position)
         newTower.Owner = playerArg
@@ -74,13 +74,14 @@ function PlayerService.upgradeTower(playerArg: Player, tower: Tower.Tower): ()
 end
 --^^ Intellisense, make sure to double check
 
-function PlayerService.checkEcoTowers()
+function PlayerService.runEcoTowers()
     for _, player in PlayerService.Players do
+        local income: number = 0
         for _, ecoTower in player.EcoTowers do
-            ecoTower:Generate()
+            income += ecoTower:Generate()
         end
+        player:ChangeCash(income)
     end
-
 end
 --#endregion
 

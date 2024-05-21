@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local EcoData = require(script.EcoData)
+local TowerData = require(script.Parent.TowerData)
 local Eco = {}
 Eco.__index = Eco
 
@@ -9,23 +9,22 @@ export type Eco = {
     Part: Part,
     Index: number,
     Owner: Player,
-    --OwnerIndex: number,
+    Name: string,
     Level: number,
     Limit: number?,
     Cost: number,
     Income: number,
     --Functions
-    new: (towerName: string) -> (Eco),
+    new: (ecoTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco),
     Destroy: (self: Eco) -> (),
     Generate: (self: Eco) -> (number)
 }
 --#endregion
 
 --#region Functions
-function Eco.new(towerName: string, position: Vector3): (Eco)
-	local self = table.clone(EcoData[towerName][1])
-    self.Level = 1
-    self.Part = game.ServerStorage.Towers[towerName]:Clone()
+function Eco.new(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco)
+	local self = table.clone(ecoTemplate)
+    self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
     return setmetatable(self, Eco)
