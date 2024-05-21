@@ -11,14 +11,14 @@ local Unit = require(script.Unit)
 export type TowerService = {
     --Properties
     Towers: {Tower.Tower},
-    EcoTowers: {Eco.Eco},
+    EcoTowers: {Eco.EcoTower},
     Spawners: {Spawner.Spawner},
     Units: {Unit.Unit},
     UnitRemoveQueue: {Unit.Unit},
     --Functions
-    newTower: (towerType: string, position: Vector3) -> (Tower.Tower | Eco.Eco | Spawner.Spawner | nil),
+    newTower: (towerType: string, position: Vector3) -> (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil),
     newNormalTower: (towerTemplate: {TowerData.TowerTemplate}, position: Vector3) -> (Tower.Tower),
-    newEcoTower: (towerTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco.Eco),
+    newEcoTower: (towerTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco.EcoTower),
     newSpawner: (towerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner.Spawner),
     attackEnemies: () -> (number),
     spawnUnits: () -> (),
@@ -54,7 +54,7 @@ end
 --#endregion
 
 --#region Functions
-function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower | Eco.Eco | Spawner.Spawner | nil)
+function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil)
     local newTower = TowerData[towerName][1]
     if newTower.Type == "Tower" then
         return TowerService.newNormalTower(newTower, position)
@@ -74,7 +74,7 @@ function TowerService.newNormalTower(towerTemplate: {TowerData.TowerTemplate}, p
     return tower
 end
 
-function TowerService.newEcoTower(towerTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.Eco)
+function TowerService.newEcoTower(towerTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.EcoTower)
     local eco = Eco.new(towerTemplate, position)
     table.insert(TowerService.EcoTowers, eco)
     eco.Index = #TowerService.EcoTowers

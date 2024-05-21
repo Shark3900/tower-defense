@@ -10,13 +10,13 @@ export type PlayerData = {
     Cash: number,
     Equipped: {string},
     Towers: {Tower.Tower},
-    EcoTowers: {Eco.Eco},
+    EcoTowers: {Eco.EcoTower},
     Spawners: {Spawner.Spawner},
     Limit: number,
     --Functions
     new: (playerName: string) -> (PlayerData),
     AddTower: (self: PlayerData, tower: Tower.Tower) -> (),
-    AddEcoTower: (self: PlayerData, tower: Eco.Eco) -> (),
+    AddEcoTower: (self: PlayerData, tower: Eco.EcoTower) -> (),
     ChangeNumTowers: (self: PlayerData) -> (),
     ChangeCash: (self: PlayerData, value: number) -> (PlayerData),
     CheckCash: (self: PlayerData, value: number) -> (boolean),
@@ -47,7 +47,7 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
     return setmetatable(self, Player)
 end
 
-function Player:AddTower(tower: Tower.Tower?, ecoTower: Eco.Eco?, spawner: Spawner.Spawner?): ()
+function Player:AddTower(tower: Tower.Tower?, ecoTower: Eco.EcoTower?, spawner: Spawner.Spawner?): ()
     if tower then
         self:ChangeCash(-tower.Cost)
         table.insert(self.Towers, tower)
@@ -65,7 +65,7 @@ function Player:AddTower(tower: Tower.Tower?, ecoTower: Eco.Eco?, spawner: Spawn
     return
 end
 
-function Player:SellTower(tower: {Tower.Tower | Spawner.Spawner | Eco.Eco}): ()
+function Player:SellTower(tower: {Tower.Tower | Spawner.Spawner | Eco.EcoTower}): ()
     if table.find(self.Towers, tower) then
         self:ChangeCash(tower.Value * 0.75)
         table.remove(self.Towers, table.find(self.Towers, tower))

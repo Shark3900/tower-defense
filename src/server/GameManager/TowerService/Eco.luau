@@ -4,8 +4,14 @@ local TowerData = require(script.Parent.TowerData)
 local Eco = {}
 Eco.__index = Eco
 
-export type Eco = {
-    --Properties
+type EcoFunctions = {
+    __index: EcoFunctions,
+    new: (ecoTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (EcoTower),
+    Destroy: (self: EcoTower) -> (),
+    Generate: (self: EcoTower) -> (number)
+}
+
+type EcoData = {
     Part: Part,
     Index: number,
     Owner: Player,
@@ -14,15 +20,13 @@ export type Eco = {
     Limit: number?,
     Cost: number,
     Income: number,
-    --Functions
-    new: (ecoTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco),
-    Destroy: (self: Eco) -> (),
-    Generate: (self: Eco) -> (number)
 }
+
+export type EcoTower = typeof(setmetatable({} :: EcoData, {} :: EcoFunctions))
 --#endregion
 
 --#region Functions
-function Eco.new(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco)
+function Eco.new(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (EcoTower)
 	local self = table.clone(ecoTemplate)
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Position = position

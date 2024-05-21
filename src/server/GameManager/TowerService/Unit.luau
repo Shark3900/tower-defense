@@ -8,8 +8,14 @@ local Unit = {}
 Unit.__index = Unit
 setmetatable(Unit, Tower)
 
-export type Unit = {
-    --Properties
+type UnitFunctions = {
+	__index: UnitFunctions,
+	new: (unitName: string) -> (Unit),
+	Move: (self: Unit, deltaTime: number) -> (Unit?),
+	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
+}
+
+type UnitData = {
 	Part: Part,
 	Spawner: {},
 	Name: string,
@@ -22,7 +28,6 @@ export type Unit = {
 	Index: number,
 	UnitIndex: number,
 	DamageDealt: number,
-	--Ranged Properties
     Damage: number?,
 	Range: number?,
 	AttackType: string?,
@@ -35,15 +40,12 @@ export type Unit = {
     Angle: number?, --If cone AOE
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
-	--Flags
-	Stunned: boolean,
-	Slowed: boolean,
-	Flying: boolean,
-	--Functions
-	new: (unitName: string) -> (Unit),
-	Move: (self: Unit, deltaTime: number) -> (Unit?),
-	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
+	Stunned: boolean?,
+	Slowed: boolean?,
+	Flying: boolean?
 }
+
+export type Unit = typeof(setmetatable({} :: UnitData, {} :: UnitFunctions))
 --#endregion
 
 --#region Functions

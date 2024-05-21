@@ -5,8 +5,16 @@ local Unit = require(script.Parent.Unit)
 local Spawner = {}
 Spawner.__index = Spawner
 
-export type Spawner = {
-    --Properties
+type SpawnerFunctions = {
+    __index: SpawnerFunctions,
+    new: (spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner),
+    Destroy: (self: Spawner) -> (),
+    SpawnUnit: (self: Spawner) -> (Unit.Unit),
+    RemoveUnit: (self: Spawner) -> ()
+
+}
+
+type SpawnerData = {
     Part: Part,
     Index: number,
     Owner: Player,
@@ -21,12 +29,9 @@ export type Spawner = {
     SpawnSpeed: number,
     SpawnTimer: number,
     Units: {Unit.Unit},
-    --Functions
-    new: (spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner),
-    Destroy: (self: Spawner) -> (),
-    SpawnUnit: (self: Spawner) -> (Unit.Unit),
-    RemoveUnit: (self: Spawner) -> ()
 }
+
+export type Spawner = typeof(setmetatable({} :: SpawnerData, {} :: SpawnerFunctions))
 --#endregion
 
 --#region Functions
