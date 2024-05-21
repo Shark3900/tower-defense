@@ -1,17 +1,34 @@
 --!strict
 --#region Requires & Types
-local TowerData = require(script.TowerData)
+local TowerData = require(script.Parent.TowerData)
 local EnemyService = require(script.Parent.Parent.EnemyService)
 local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
-local Tower = {}
+local Tower = {} :: TowerFunctions
 Tower.__index = Tower
 
-export type Tower = {
+type TowerFunctions = {
+    __index: TowerFunctions,
+    new: (towerTemplate: {TowerData.TowerTemplate}, position: Vector3) -> (Tower),
+    Destroy: (self: Tower) -> (),
+    Attack: (self: Tower, enemy: Enemy.Enemy) -> (number),
+    CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
+    FindFirst: (self: Tower) -> (Enemy.Enemy?),
+    FindStrong: (self: Tower) -> (Enemy.Enemy?),
+    FindLast: (self: Tower) -> (Enemy.Enemy?),
+    FindTarget: (self: Tower) -> (Enemy.Enemy?),
+    DirectAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    BoxAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (number),
+    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (number)
+}
+
+type TowerData = {
     --Properties
     Part: Part,
     Index: number,
     Owner: Player,
-    --OwnerIndex: number,
+    Name: string,
     Level: number,
     Limit: number?, --TODO: Implement tower limit
     Cost: number,
@@ -23,7 +40,6 @@ export type Tower = {
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
-    AttackQueue: {Enemy.Enemy},
     Chain: number?, --If chain attack
     ChainRange: number?, --If chain attack
     Angle: number?, --If cone AOE
@@ -34,31 +50,17 @@ export type Tower = {
     --Flags
 	CanArmored: boolean?,
 	CanStealth: boolean?,
-	CanFlying: boolean?,
+	CanFlying: boolean?
     --Functions
-    new: (towerName: string, position: Vector3) -> (Tower),
-    Destroy: (self: Tower) -> (),
-    Attack: (self: Tower, enemy: Enemy.Enemy) -> ({result: (Enemy.Enemy?), value: number}),
-    AttackLoop: (self: Tower) -> (),
-    CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
-    FindTarget: (self: Tower) -> (Enemy.Enemy?),
-    FindFirst: (self: Tower) -> (Enemy.Enemy?),
-    FindStrong: (self: Tower) -> (Enemy.Enemy?),
-    FindLast: (self: Tower) -> (Enemy.Enemy?),
-    DirectAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    BoxAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    CircleAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    ConeAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    ChainAttack: (self: Tower, target: Enemy.Enemy) -> (number),
-    getCost: (towerName: string) -> (number?)
 }
+
+export type Tower = typeof(setmetatable({} :: TowerData, {} :: TowerFunctions))
 --#endregion
 
 --#region Functions
-function Tower.new(towerName: string, position: Vector3): (Tower)
-	local self = table.clone(TowerData[towerName][1])
-    self.Level = 1
-    self.Part = game.ServerStorage.Towers[towerName]:Clone()
+function Tower.new(towerTemplate: {TowerData.TowerTemplate}, position: Vector3): (Tower)
+	local self = table.clone(towerTemplate)
+    self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
     return setmetatable(self, Tower)
@@ -72,27 +74,15 @@ function Tower:Destroy(): ()
 	return
 end
 
-function Tower:Attack(enemy: Enemy.Enemy): ({result: Enemy.Enemy?, value: number})
+function Tower:Attack(enemy: Enemy.Enemy): (number)
     self.AttackTimer = tick()
-    return enemy:ChangeHealth(self.Damage)
-end
-
-function Tower:AttackLoop(): (number)
-    local damage = 0
-
-    for _, v in self.AttackQueue do
-        local result: Enemy.Enemy?, value: number = self:Attack(v)
-        if result == nil then
-            table.insert(EnemyService.EnemyRemoveQueue, v)
-        end
-        damage += value
+    local result: Enemy.Enemy?, value: number = enemy:ChangeHealth(self.Damage)
+    if result == nil then
+        table.insert(EnemyService.EnemyRemoveQueue, enemy)
     end
-
-    table.clear(self.AttackQueue)
-    self.DamageDealt += damage
+    self.DamageDealt += value
     self.Part:SetAttribute("DamageDealt", self.DamageDealt)
-
-    return damage
+    return value
 end
 
 function Tower:CheckRange(enemy: Enemy.Enemy): (boolean)
@@ -101,22 +91,6 @@ function Tower:CheckRange(enemy: Enemy.Enemy): (boolean)
     else
         return false
     end
-end
-
-function Tower:FindTarget(): (Enemy.Enemy?)
-    local target: Enemy.Enemy?
-
-    if self.AttackPrio == "Melee" then
-        return nil
-    elseif self.AttackPrio == "First" then
-        target = self:FindFirst()
-    elseif self.AttackPrio == "Strong" then
-        target = self:FindStrong()
-    else
-        target = self:FindLast()
-    end
-
-    return target
 end
 
 function Tower:FindFirst(): (Enemy.Enemy?)
@@ -150,79 +124,91 @@ function Tower:FindLast(): (Enemy.Enemy?)
     return nil
 end
 
-function Tower:DirectAttack(target: Enemy.Enemy): (number)
-    table.insert(self.AttackQueue, target)
-    return self:AttackLoop()
+function Tower:FindTarget(): (Enemy.Enemy?)
+    local target: Enemy.Enemy?
+
+    if self.AttackPrio == "Melee" then
+        return nil
+    elseif self.AttackPrio == "First" then
+        target = self:FindFirst()
+    elseif self.AttackPrio == "Strong" then
+        target = self:FindStrong()
+    else
+        target = self:FindLast()
+    end
+
+    return target
 end
 
-function Tower:CircleAttack(target: Enemy.Enemy): (number)
-    for _, enemy in self.Enemies do
-        if (enemy.Part.Position - target.Part.Position).Magntiude <= self.Range then
-            table.insert(self.AttackQueue, enemy)
+function Tower:DirectAttack(target: Enemy.Enemy): (number)
+    table.insert(self.AttackQueue, target)
+    return self:Attack(target)
+end
+
+function Tower:CircleAttack(target: Enemy.Enemy): ()
+    local damage: number = 0
+    for _, enemy in EnemyService.Enemies do
+        if (enemy.Part.Position - target.Part.Position).Magnitude <= self.Radius then
+            damage += self:Attack(enemy)
         end
     end
 
-    return self:AttackLoop()
+    return damage
 end
 
 function Tower:BoxAttack(target: Enemy.Enemy): (number)
+    local damage: number = 0
     local halfWidth: number = self.Width / 2
 
-    for _, enemy in self.Enemies do
+    for _, enemy in EnemyService.Enemies do
         local toEnemy: Vector3 = enemy.Part.Position - target.Part.Position
         local distanceAlongDirection: number = toEnemy:Dot(self.Part.CFrame.LookVector)
         local distancePerpendicular: number = math.abs(toEnemy:Dot(self.Part.CFrame.RightVector))
 
         if distanceAlongDirection >= 0 and distanceAlongDirection <= self.Range and distancePerpendicular <= halfWidth then
-            table.insert(self.AttackQueue, enemy)
+            damage += self:Attack(enemy)
         end
     end
 
-    return self:AttackLoop()
+    return damage
 end
 
 function Tower:ConeAttack(target: Enemy.Enemy): (number)
+    local damage: number = 0
     local towerPos: Vector3 = self.Part.Position
     local direction: Vector3 = (target.Part.Position - towerPos).Unit
 
-    for _, enemy in self.Enemies do
+    for _, enemy in EnemyService.Enemies do
         if self:CheckRange(enemy) then
             local enemyDirection: Vector3 = (enemy.Part.Position - towerPos).Unit
             local angleToEnemy: number = math.deg(math.acos(direction:Dot(enemyDirection)))
 
             if angleToEnemy <= self.Angle / 2 then
-                table.insert(self.AttackQueue, enemy)
+                damage += self:Attack(enemy)
             end
         end
     end
 
-    return self:AttackLoop()
+    return damage
 end
 
 --TODO: Chain might be inconsistent towards behind targets -- Possibly inconsistent DistanceSort?
 function Tower:ChainAttack(target: Enemy.Enemy): (number)
-    table.insert(self.AttackQueue, target)
+    local damage: number = 0
+    damage += self:Attack(target)
     for i = target.DistanceIndex + 1, self.Chain do
         if EnemyService.DistanceSort[i] then
             local enemyOne: Enemy.Enemy = EnemyService.DistanceSort[i - 1]
             local enemyTwo: Enemy.Enemy = EnemyService.DistanceSort[i]
             if (enemyOne.Part.Position - enemyTwo.Part.Position).Magnitude < self.ChainRange then
-                table.insert(self.AttackQueue, EnemyService.DistanceSort[i])
+                damage += self:Attack(EnemyService.DistanceSort[i])
             else
                 break
             end
         end
     end
 
-    return self:AttackLoop()
-end
-
-function Tower.getCost(towerName: string): (number?)
-    if TowerData[towerName] then
-        return TowerData[towerName][1].Cost
-    else
-        return nil
-    end
+    return damage
 end
 --#endregion
 

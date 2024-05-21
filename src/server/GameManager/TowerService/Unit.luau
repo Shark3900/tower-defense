@@ -1,17 +1,24 @@
 --!strict
 --#region Requires & Types
-local UnitData = require(script.UnitData)
-local Maps = require(script.Parent.Parent.Parent.EnemyService.Maps)
-local Enemy = require(script.Parent.Parent.Parent.EnemyService.Enemy)
-local Tower = require(script.Parent.Parent.Tower)
+local TowerData = require(script.Parent.TowerData)
+local Maps = require(script.Parent.Parent.EnemyService.Maps)
+local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
+local Tower = require(script.Parent.Tower)
 local Unit = {}
 Unit.__index = Unit
 setmetatable(Unit, Tower)
 
-export type Unit = {
-    --Properties
+type UnitFunctions = {
+	__index: UnitFunctions,
+	new: (unitName: string) -> (Unit),
+	Move: (self: Unit, deltaTime: number) -> (Unit?),
+	Collide: (self: Unit, enemy: Enemy.Enemy) -> (boolean?, number),
+}
+
+type UnitData = {
 	Part: Part,
 	Spawner: {},
+	Name: string,
 	MaxHealth: number,
 	Health: number,
 	Speed: number,
@@ -21,7 +28,6 @@ export type Unit = {
 	Index: number,
 	UnitIndex: number,
 	DamageDealt: number,
-	--Ranged Properties
     Damage: number?,
 	Range: number?,
 	AttackType: string?,
@@ -34,20 +40,17 @@ export type Unit = {
     Angle: number?, --If cone AOE
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
-	--Flags
-	Stunned: boolean,
-	Slowed: boolean,
-	Flying: boolean,
-	--Functions
-	new: (unitName: string) -> (Unit),
-	Move: (self: Unit, deltaTime: number) -> (Unit?),
-	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
+	Stunned: boolean?,
+	Slowed: boolean?,
+	Flying: boolean?
 }
+
+export type Unit = typeof(setmetatable({} :: UnitData, {} :: UnitFunctions))
 --#endregion
 
 --#region Functions
 function Unit.new(unitName: string, unitLevel: number): (Unit)
-	local self = table.clone(UnitData[unitName][unitLevel])
+	local self = table.clone(TowerData[unitName][unitLevel])
 	self.Health = self.MaxHealth
 	self.Waypoint = #Maps.Waypoints - 1
 	self.Part = game.ServerStorage.Units[unitName]:Clone()
@@ -96,7 +99,7 @@ function Unit:Move(deltaTime: number): (Unit?)
 	end
 end
 
-function Unit:Collide(enemy: Enemy.Enemy): ({result: boolean?, value: number})
+function Unit:Collide(enemy: Enemy.Enemy): (boolean?, number)
 	if self.Health > enemy.Health then
 		local value = enemy.Health
 		self.Health -= value

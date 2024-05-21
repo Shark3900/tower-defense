@@ -5,8 +5,15 @@ local Maps = require(script.Parent.Maps)
 local Enemy = {}
 Enemy.__index = Enemy
 
-export type Enemy = {
-	--Properties
+type EnemyFunctions = {
+	__index: EnemyFunctions,
+	new: (enemyName: string) -> (Enemy),
+	Destroy: (self: Enemy) -> (),
+	Move: (self: Enemy, deltaTime: number) -> (Enemy?),
+	ChangeHealth: (self: Enemy, value: number) -> (Enemy?, number)
+}
+
+type EnemyData = {
 	Part: Part,
 	MaxHealth: number,
 	Health: number,
@@ -18,21 +25,17 @@ export type Enemy = {
 	Index: number,
 	HealthIndex: number,
 	DistanceIndex: number,
-	--Flags
-	Stunned: boolean,
-	StunTimer: number,
-	Slowed: boolean,
-	SlowTimer: number,
-	Boss: boolean,
-	Armored: boolean,
-	Stealth: boolean,
-	Flying: boolean,
-	--Functions
-	new: (enemyName: string) -> (Enemy),
-	Destroy: (self: Enemy) -> (),
-	Move: (self: Enemy, deltaTime: number) -> (Enemy?),
-	ChangeHealth: (self: Enemy, value: number) -> ({result: (Enemy?), value: number})
+	Stunned: boolean?,
+	StunTimer: number?,
+	Slowed: boolean?,
+	SlowTimer: number?,
+	Boss: boolean?,
+	Armored: boolean?,
+	Stealth: boolean?,
+	Flying: boolean?
 }
+
+export type Enemy = typeof(setmetatable({} :: EnemyData, {} :: EnemyFunctions))
 --#endregion
 
 --#region Functions
@@ -93,7 +96,7 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 	end
 end
 
-function Enemy:ChangeHealth(value): ({result: (Enemy?), value: number})
+function Enemy:ChangeHealth(value): (Enemy?, number)
 	if value >= self.Health then
 		value = self.Health
 		return nil, value

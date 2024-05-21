@@ -2,29 +2,31 @@
 --#region Requires & Types
 local EnemyService = require(script.Parent.EnemyService)
 local Enemy = require(script.Parent.EnemyService.Enemy)
+local TowerData = require(script.TowerData)
 local Tower = require(script.Tower)
 local Eco = require(script.Eco)
 local Spawner = require(script.Spawner)
-local Unit = require(script.Spawner.Unit)
+local Unit = require(script.Unit)
 
 export type TowerService = {
     --Properties
     Towers: {Tower.Tower},
-    EcoTowers: {Eco.Eco},
+    EcoTowers: {Eco.EcoTower},
     Spawners: {Spawner.Spawner},
     Units: {Unit.Unit},
     UnitRemoveQueue: {Unit.Unit},
     --Functions
-    newTower: (towerType: string, position: Vector3) -> (Tower.Tower),
-    newEcoTower: (towerType: string, position: Vector3) -> (Eco.Eco),
-    newSpawner: (spawnerType: string, position: Vector3) -> (Spawner.Spawner),
+    newTower: (towerType: string, position: Vector3) -> (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil),
+    newNormalTower: (towerTemplate: {TowerData.TowerTemplate}, position: Vector3) -> (Tower.Tower),
+    newEcoTower: (towerTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco.EcoTower),
+    newSpawner: (towerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner.Spawner),
     attackEnemies: () -> (number),
     spawnUnits: () -> (),
     removeUnits: () -> (),
     moveUnits: (deltaTime: number) -> (),
     checkUnitCollision: () -> (number),
     collide: (unit: Unit.Unit, enemy: Enemy.Enemy) -> (number),
-    updateSpawnerDamageDealt: () -> ()
+    getCost: (towerName: string) -> (number?)
 }
 --#endregion
 
@@ -47,33 +49,54 @@ local function sortUnits()
         end
     end)
 
+    if #TowerService.Units > 0 then
+        for i = 1, #TowerService.Units do
+            TowerService.Units[i].UnitIndex = i
+        end
+    end
+
     return TowerService.Units
 end
 --#endregion
 
 --#region Functions
-function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower)
-    local tower = Tower.new(towerName, position)
+function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil)
+    local newTower = TowerData[towerName][1]
+    if newTower.Type == "Tower" then
+        return TowerService.newNormalTower(newTower, position)
+    elseif newTower.Type == "Eco" then
+        return TowerService.newEcoTower(newTower, position)
+    elseif newTower.Type == "Spawner" then
+        return TowerService.newSpawner(newTower, position)
+    else
+        return nil
+    end
+end
+
+function TowerService.newNormalTower(towerTemplate: {TowerData.TowerTemplate}, position: Vector3): (Tower.Tower)
+    local tower = Tower.new(towerTemplate, position)
     table.insert(TowerService.Towers, tower)
     tower.Index = #TowerService.Towers
     return tower
 end
 
-function TowerService.newEcoTower(towerName: string, position: Vector3): (Eco.Eco)
-    local eco = Eco.new(towerName, position)
+function TowerService.newEcoTower(towerTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.EcoTower)
+    local eco = Eco.new(towerTemplate, position)
     table.insert(TowerService.EcoTowers, eco)
     eco.Index = #TowerService.EcoTowers
     return eco
 end
 
-function TowerService.newSpawner(spawnerName: string, position: Vector3): (Spawner.Spawner)
-    local spawner = Spawner.new(spawnerName, position)
+function TowerService.newSpawner(towerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner.Spawner)
+    local spawner = Spawner.new(towerTemplate, position)
     table.insert(TowerService.Spawners, spawner)
     spawner.Index = #TowerService.Spawners
     return spawner
 end
 
---function TowerService.sellTower()
+function TowerService.sellTower()
+
+end
 --function TowerService.sellSpawner()
 
 function TowerService.attackEnemies(): (number)
@@ -128,9 +151,13 @@ function TowerService.spawnUnits(): ()
 end
 
 function TowerService.removeUnits(): ()
-    for i, v in TowerService.UnitRemoveQueue do
-        table.remove(TowerService.Units, v.UnitIndex)
-        v.Spawner:RemoveUnit()
+    for _, unit in TowerService.UnitRemoveQueue do
+        if unit.AttackType ~= "Melee" then
+            table.remove(TowerService.Towers, unit.Index)
+        end
+        table.remove(TowerService.Units, unit.UnitIndex)
+        unit.Spawner:RemoveUnit()
+        sortUnits()
     end
 
     table.clear(TowerService.UnitRemoveQueue)
@@ -173,18 +200,20 @@ function TowerService.collide(unit: Unit.Unit, enemy: Enemy.Enemy): (number)
         table.insert(EnemyService.EnemyRemoveQueue, enemy)
     elseif result == false then
         table.insert(TowerService.UnitRemoveQueue, unit)
-        if unit.AttackType ~= "Melee" then
-            table.remove(TowerService.Towers, unit.Index)
-        end
     elseif result == nil then
         table.insert(EnemyService.EnemyRemoveQueue, enemy)
         table.insert(TowerService.UnitRemoveQueue, unit)
-        if unit.AttackType ~= "Melee" then
-            table.remove(TowerService.Towers, unit.Index)
-        end
     end
 
     return value
+end
+
+function TowerService.getCost(towerName: string): (number?)
+    if TowerData[towerName] then
+        return TowerData[towerName][1].Cost
+    else
+        return nil
+    end
 end
 --#endregion
 

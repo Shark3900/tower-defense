@@ -1,16 +1,24 @@
 --!strict
 --#region Requires & Types
-local SpawnerData = require(script.SpawnerData)
-local Unit = require(script.Unit)
+local TowerData = require(script.Parent.TowerData)
+local Unit = require(script.Parent.Unit)
 local Spawner = {}
 Spawner.__index = Spawner
 
-export type Spawner = {
-    --Properties
+type SpawnerFunctions = {
+    __index: SpawnerFunctions,
+    new: (spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner),
+    Destroy: (self: Spawner) -> (),
+    SpawnUnit: (self: Spawner) -> (Unit.Unit),
+    RemoveUnit: (self: Spawner) -> ()
+
+}
+
+type SpawnerData = {
     Part: Part,
     Index: number,
     Owner: Player,
-    --OwnerIndex: number,
+    Name: string,
     Level: number,
     Limit: number?,
     Cost: number,
@@ -21,19 +29,15 @@ export type Spawner = {
     SpawnSpeed: number,
     SpawnTimer: number,
     Units: {Unit.Unit},
-    --Functions
-    new: (towerName: string, position: Vector3) -> (Spawner),
-    Destroy: (self: Spawner) -> (),
-    SpawnUnit: (self: Spawner) -> (Unit.Unit),
-    RemoveUnit: (self: Spawner) -> ()
 }
+
+export type Spawner = typeof(setmetatable({} :: SpawnerData, {} :: SpawnerFunctions))
 --#endregion
 
 --#region Functions
-function Spawner.new(spawnerName: string, position: Vector3): (Spawner)
-	local self = table.clone(SpawnerData[spawnerName][1])
-    self.Level = 1
-    self.Part = game.ServerStorage.Spawners[spawnerName]:Clone()
+function Spawner.new(spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner)
+	local self = table.clone(spawnerTemplate)
+    self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Position = position
     self.Part.Parent = workspace.Towers
     return setmetatable(self, Spawner)
