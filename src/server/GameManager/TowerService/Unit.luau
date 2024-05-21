@@ -12,7 +12,7 @@ type UnitFunctions = {
 	__index: UnitFunctions,
 	new: (unitName: string) -> (Unit),
 	Move: (self: Unit, deltaTime: number) -> (Unit?),
-	Collide: (self: Unit, enemy: Enemy.Enemy) -> ({result: boolean?, value: number}),
+	Collide: (self: Unit, enemy: Enemy.Enemy) -> (boolean?, number),
 }
 
 type UnitData = {
@@ -99,7 +99,7 @@ function Unit:Move(deltaTime: number): (Unit?)
 	end
 end
 
-function Unit:Collide(enemy: Enemy.Enemy): ({result: boolean?, value: number})
+function Unit:Collide(enemy: Enemy.Enemy): (boolean?, number)
 	if self.Health > enemy.Health then
 		local value = enemy.Health
 		self.Health -= value

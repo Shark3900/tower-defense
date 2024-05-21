@@ -25,7 +25,7 @@ PlayerService.CashPending = 0
 
 --#region Functions
 function PlayerService.newPlayer(player: Player): (Player.PlayerData)
-    PlayerService.Players[player.Name] =  Player.new(player, {"Basic", "Sniper", "Mortar", "Tesla"})
+    PlayerService.Players[player.Name] =  Player.new(player, {"Basic", "MeleeSpawner", "RifleSpawner", "Tesla"})
     return PlayerService.Players[player.Name]
 end
 

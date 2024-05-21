@@ -9,7 +9,7 @@ mouse.TargetFilter = workspace.Previews
 
 local buyTower: RemoteEvent = game.ReplicatedStorage.Events.BuyTower
 
-local towers = {"Basic", "Sniper", "Tesla", "Mortar"} --TODO: Pass from server event?
+local towers = {"Basic", "MeleeSpawner", "RifleSpawner", "Mortar"} --TODO: Pass from server event?
 local previewTower = nil
 local selectedTowerToPlace = nil
 local selectedTower = nil

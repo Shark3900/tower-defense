@@ -49,6 +49,12 @@ local function sortUnits()
         end
     end)
 
+    if #TowerService.Units > 0 then
+        for i = 1, #TowerService.Units do
+            TowerService.Units[i].UnitIndex = i
+        end
+    end
+
     return TowerService.Units
 end
 --#endregion
@@ -88,7 +94,9 @@ function TowerService.newSpawner(towerTemplate: {TowerData.SpawnerTemplate}, pos
     return spawner
 end
 
---function TowerService.sellTower()
+function TowerService.sellTower()
+
+end
 --function TowerService.sellSpawner()
 
 function TowerService.attackEnemies(): (number)
@@ -143,12 +151,13 @@ function TowerService.spawnUnits(): ()
 end
 
 function TowerService.removeUnits(): ()
-    for i, v in TowerService.UnitRemoveQueue do
-        if v.AttackType ~= "Melee" then
-            table.remove(TowerService.Towers, v.Index)
+    for _, unit in TowerService.UnitRemoveQueue do
+        if unit.AttackType ~= "Melee" then
+            table.remove(TowerService.Towers, unit.Index)
         end
-        table.remove(TowerService.Units, v.UnitIndex)
-        v.Spawner:RemoveUnit()
+        table.remove(TowerService.Units, unit.UnitIndex)
+        unit.Spawner:RemoveUnit()
+        sortUnits()
     end
 
     table.clear(TowerService.UnitRemoveQueue)
