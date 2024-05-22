@@ -13,7 +13,7 @@ type EnemyData = {
 
 local defaults = {
 	MaxHealth = 6,
-	Speed = 8,
+	Speed = 6,
 	SpeedModifier = 1,
 	Value = 6,
 	Waypoint = 1,
@@ -45,8 +45,8 @@ end
 
 --#region Enemies
 CreateEnemy("Basic")
-CreateEnemy("Fast", {MaxHealth = 3, Speed = 16, Value = 3})
-CreateEnemy("Big", {MaxHealth = 18, Speed = 4, Value = 18})
+CreateEnemy("Fast", {MaxHealth = 3, Speed = 12, Value = 3})
+CreateEnemy("Big", {MaxHealth = 18, Speed = 3, Value = 18})
 --#endregion
 
 return EnemyData

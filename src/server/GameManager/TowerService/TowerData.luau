@@ -8,7 +8,9 @@ export type Buff = {
 }
 
 export type TowerTemplate = {
-    Type: "Tower",
+    Type: string,
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
 	Limit: number?,
@@ -21,7 +23,6 @@ export type TowerTemplate = {
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
-	AttackQueue: {},
 	CanArmored: boolean?,
 	CanStealth: boolean?,
 	CanFlying: boolean?,
@@ -35,7 +36,9 @@ export type TowerTemplate = {
 }
 
 export type SpawnerTemplate = {
-    Type: "Spawner",
+    Type: string,
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
@@ -50,17 +53,23 @@ export type SpawnerTemplate = {
 }
 
 export type EcoTemplate = {
-    Type: "Eco",
+    Type: string,
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
     Cost: number,
     Value: number,
     Income: number,
-    IncomeGenerated: number
+    IncomeGenerated: number,
+    IncomeTimer: number
 }
 
 export type UnitTemplate = {
+    Type: string,
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
@@ -284,6 +293,7 @@ TowerData["Tesla"] = {
 		Range = 10,
 		Chain = 3,
 		ChainRange = 5,
+        AttackSpeed = 1.36,
 		AttackType = "Chain"
 	},
 }
@@ -292,9 +302,10 @@ TowerData["Mortar"] = {
         Name = "Mortar",
 		Cost = 200,
 		Value = 200,
-		Damage = 5,
+		Damage = 3,
 		Range = 10,
 		Radius = 3,
+        AttackSpeed = 2.5,
 		AttackType = "Circle"
 	}
 }
@@ -345,9 +356,7 @@ TowerData["Melee"] = {
 	["Defaults"] = {
         Name = "Melee",
 		MaxHealth = 30,
-		Speed = 8,
-		Damage = 2,
-		Range = 10,
+		Speed = 8
 	}
 }
 TowerData["Rifles"] = {

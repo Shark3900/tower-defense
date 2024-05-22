@@ -18,7 +18,8 @@ export type EnemyService = {
 	moveEnemies: (deltaTime: number) -> (number),
     sortEnemies: () -> ({Enemy.Enemy}),
     sortHealth: () -> ({Enemy.Enemy}),
-    sortDistance: () -> ({Enemy.Enemy})
+    sortDistance: () -> ({Enemy.Enemy}),
+    sortAll: () -> ()
 }
 --#endregion
 
@@ -80,12 +81,10 @@ function EnemyService.removeEnemies(): ()
 
     for _, v in EnemyService.EnemyRemoveQueue do
         table.remove(EnemyService.HealthSort, v.HealthIndex)
-        EnemyService.sortHealth()
         table.remove(EnemyService.DistanceSort, v.DistanceIndex)
-        EnemyService.sortDistance()
         table.remove(EnemyService.Enemies, v.Index)
-        EnemyService.sortEnemies()
         v:Destroy()
+        EnemyService.sortAll()
     end
 
     table.clear(EnemyService.EnemyRemoveQueue)
@@ -147,6 +146,14 @@ function EnemyService.sortDistance(): ({Enemy.Enemy})
     end
 
     return EnemyService.DistanceSort
+end
+
+function EnemyService.sortAll(): ()
+    EnemyService.sortEnemies()
+    EnemyService.sortHealth()
+    EnemyService.sortDistance()
+
+    return
 end
 --#endregion
 

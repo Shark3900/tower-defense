@@ -31,10 +31,6 @@ end
 --#functions
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
-    --I'm sinning, don't forget about this
-	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
-    TowerService.newTower("MeleeSpawner", Vector3.new(-1, 0.6, 81))
-
     return
 end
 
@@ -47,6 +43,7 @@ function GameManager.updateLoop(): ()
                 print("woooo you won!!")
                 GameManager.Heartbeat:Disconnect()
             end
+            PlayerService.runEcoTowers()
         end
         if #EnemyService.EnemyQueue > 0 then
             EnemyService.spawnEnemy()
@@ -56,25 +53,14 @@ function GameManager.updateLoop(): ()
             print("you lose :(")
             GameManager.Heartbeat:Disconnect()
         end
-        if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
-            PlayerService.CashPending += TowerService.attackEnemies()
+        if #TowerService.Towers > 0 then
+            PlayerService.CashPending += TowerService.iterateTowers(dt)
         end
-        if #TowerService.Spawners > 0 then
-            TowerService.spawnUnits()
-            if #TowerService.Units > 0 then
-                TowerService.moveUnits(dt)
-                PlayerService.CashPending += TowerService.checkUnitCollision()
-            end
+        if #EnemyService.EnemyRemoveQueue > 0 then
+            EnemyService.removeEnemies()
         end
         if PlayerService.CashPending > 0 then
             PlayerService.distributeCash()
-        end
-        if #EnemyService.EnemyRemoveQueue > 0 then
-            EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
-            PlayerService.distributeCash()
-        end
-        if #TowerService.UnitRemoveQueue > 0 then
-            TowerService.removeUnits()
         end
         --local endTime: number = os.clock()
         --table.insert(GameManager.Benchmark, (endTime - startTime) * 1000)
