@@ -345,9 +345,7 @@ TowerData["Melee"] = {
 	["Defaults"] = {
         Name = "Melee",
 		MaxHealth = 30,
-		Speed = 8,
-		Damage = 2,
-		Range = 10,
+		Speed = 8
 	}
 }
 TowerData["Rifles"] = {

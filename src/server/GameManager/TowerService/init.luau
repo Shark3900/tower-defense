@@ -110,17 +110,7 @@ function TowerService.attackEnemies(): (number)
 
             if target then
                 tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
-                if tower.AttackType == "Direct" then
-                    damage += tower:DirectAttack(target)
-                elseif tower.AttackType == "Circle" then
-                    damage += tower:CircleAttack(target)
-                elseif tower.AttackType == "Box" then
-                    damage += tower:BoxAttack(target)
-                elseif tower.AttackType == "Cone" then
-                    damage += tower:ConeAttack(target)
-                else
-                    damage += tower:ChainAttack(target)
-                end
+                damage += tower:Attack(target)
                 EnemyService.sortHealth()
             end
         end
@@ -214,6 +204,42 @@ function TowerService.getCost(towerName: string): (number?)
     else
         return nil
     end
+end
+
+local function attack(tower: Tower.Tower): (number)
+    local damage = 0
+    local debounce: number = tower.AttackSpeed
+
+    if tick() - tower.AttackTimer > debounce then
+        local target = tower:FindTarget()
+        if target then
+            tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
+            if tower.AttackType == "Direct" then
+                damage += tower:DirectAttack(target)
+            elseif tower.AttackType == "Circle" then
+                damage += tower:CircleAttack(target)
+            elseif tower.AttackType == "Box" then
+                damage += tower:BoxAttack(target)
+            elseif tower.AttackType == "Cone" then
+                damage += tower:ConeAttack(target)
+            else
+                damage += tower:ChainAttack(target)
+            end
+            EnemyService.sortHealth()
+        end
+    end
+    
+    return damage
+end
+
+function TowerService.iterateTowers(): ()
+    for _, tower in TowerService.Towers do
+        if tower.Type == "Tower" then
+            
+        end
+    end
+
+    return
 end
 --#endregion
 
