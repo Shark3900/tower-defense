@@ -2,12 +2,10 @@
 --#region Requires & Types
 local TowerData = require(script.Parent.TowerData)
 local Unit = require(script.Parent.Unit)
-local Spawner = {}
-Spawner.__index = Spawner
 
 type SpawnerFunctions = {
     __index: SpawnerFunctions,
-    new: (spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner),
+    new: (spawnerTemplate: TowerData.SpawnerTemplate, position: Vector3) -> (Spawner),
     Destroy: (self: Spawner) -> (),
     SpawnUnit: (self: Spawner) -> (Unit.Unit),
     RemoveUnit: (self: Spawner) -> ()
@@ -15,8 +13,8 @@ type SpawnerFunctions = {
 }
 
 type SpawnerData = {
+    Type: string,
     Part: Part,
-    Index: number,
     Owner: Player,
     Name: string,
     Level: number,
@@ -32,10 +30,13 @@ type SpawnerData = {
 }
 
 export type Spawner = typeof(setmetatable({} :: SpawnerData, {} :: SpawnerFunctions))
+
+local Spawner = {} :: SpawnerFunctions
+Spawner.__index = Spawner
 --#endregion
 
 --#region Functions
-function Spawner.new(spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner)
+function Spawner.new(spawnerTemplate: TowerData.SpawnerTemplate, position: Vector3): (Spawner)
 	local self = table.clone(spawnerTemplate)
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Position = position

@@ -8,7 +8,7 @@ export type Buff = {
 }
 
 export type TowerTemplate = {
-    Type: "Tower",
+    Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
@@ -36,7 +36,7 @@ export type TowerTemplate = {
 }
 
 export type SpawnerTemplate = {
-    Type: "Spawner",
+    Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
@@ -53,7 +53,7 @@ export type SpawnerTemplate = {
 }
 
 export type EcoTemplate = {
-    Type: "Eco",
+    Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
@@ -62,11 +62,12 @@ export type EcoTemplate = {
     Cost: number,
     Value: number,
     Income: number,
-    IncomeGenerated: number
+    IncomeGenerated: number,
+    IncomeTimer: number
 }
 
 export type UnitTemplate = {
-    Type: "Unit",
+    Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
@@ -292,6 +293,7 @@ TowerData["Tesla"] = {
 		Range = 10,
 		Chain = 3,
 		ChainRange = 5,
+        AttackSpeed = 1.36,
 		AttackType = "Chain"
 	},
 }
@@ -300,9 +302,10 @@ TowerData["Mortar"] = {
         Name = "Mortar",
 		Cost = 200,
 		Value = 200,
-		Damage = 5,
+		Damage = 3,
 		Range = 10,
 		Radius = 3,
+        AttackSpeed = 2.5,
 		AttackType = "Circle"
 	}
 }

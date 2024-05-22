@@ -6,7 +6,7 @@ local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
 
 type TowerFunctions = {
     __index: TowerFunctions,
-    new: (towerTemplate: {TowerData.TowerTemplate}, position: Vector3) -> (Tower),
+    new: (towerTemplate: TowerData.TowerTemplate, position: Vector3) -> (Tower),
     Destroy: (self: Tower) -> (),
     Attack: (self: Tower, target: Enemy.Enemy) -> (number),
     CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
@@ -15,7 +15,7 @@ type TowerFunctions = {
 }
 
 type TowerData = {
-    Type: "Tower",
+    Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
@@ -49,10 +49,12 @@ Tower.__index = Tower
 --#endregion
 
 --#region Local Functions
-local function attack(self: {Tower}, enemy: {Enemy.Enemy}): (number)
+local function attack(self: Tower, enemy: Enemy.Enemy): (number)
     local result: Enemy.Enemy?, value: number = enemy:ChangeHealth(self.Damage)
     if result == nil then
-        table.insert(EnemyService.EnemyRemoveQueue, enemy)
+        if table.find(EnemyService.EnemyRemoveQueue, enemy) == nil then
+            table.insert(EnemyService.EnemyRemoveQueue, enemy)
+        end
     end
     return value
 end
@@ -168,7 +170,7 @@ local attackFunctions = {
 --#endregion
 
 --#region Functions
-function Tower.new(towerTemplate: {TowerData}, position: Vector3): (Tower)
+function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (Tower)
     local self =  setmetatable(table.clone(towerTemplate), Tower) :: Tower
 
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
@@ -207,10 +209,7 @@ function Tower:FindTarget(): (Enemy.Enemy?)
 end
 
 function Tower:ChangeTargetType(attackPrio: string): ()
-    if attackPrio == "First" or attackPrio == "Strong" or attackPrio == "Last" then
-        self.AttackPrio = attackPrio
-        self.FindTarget = targetFunctions[attackPrio]
-    end
+    self.AttackPrio = attackPrio
     return
 end
 --#endregion

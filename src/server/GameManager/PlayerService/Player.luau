@@ -1,44 +1,47 @@
 --!strict
 --#region Requires & Types
 local Tower = require(script.Parent.Parent.TowerService.Tower)
-local Spawner = require(script.Parent.Parent.TowerService.Spawner)
 local Eco = require(script.Parent.Parent.TowerService.Eco)
+local Spawner = require(script.Parent.Parent.TowerService.Spawner)
 
-export type PlayerData = {
+type PlayerFunctions = {
+    __index: PlayerFunctions,
+    new: (player: Player, equipped: {string}) -> (PlayerClass),
+    AddTower: (self: PlayerClass, tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner) -> (),
+    SellTower: (self: PlayerClass, tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner) -> (),
+    ChangeNumTowers: (self: PlayerClass) -> (),
+    ChangeCash: (self: PlayerClass, value: number) -> (PlayerClass),
+    CheckCash: (self: PlayerClass, value: number) -> (boolean),
+    CheckEquipped: (self: PlayerClass, towerName: string) -> (boolean),
+    CheckTowerLim: (self: PlayerClass) -> (boolean),
+    ValidTower: (self: PlayerClass, tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner) -> (boolean)
+}
+
+type PlayerData = {
     --Properties
     User: Player,
     Cash: number,
     Equipped: {string},
     Towers: {Tower.Tower},
     EcoTowers: {Eco.EcoTower},
-    Spawners: {Spawner.Spawner},
     Limit: number,
-    --Functions
-    new: (playerName: string) -> (PlayerData),
-    AddTower: (self: PlayerData, tower: Tower.Tower) -> (),
-    AddEcoTower: (self: PlayerData, tower: Eco.EcoTower) -> (),
-    ChangeNumTowers: (self: PlayerData) -> (),
-    ChangeCash: (self: PlayerData, value: number) -> (PlayerData),
-    CheckCash: (self: PlayerData, value: number) -> (boolean),
-    CheckEquipped: (self: PlayerData, towerName: string) -> (boolean),
-    CheckTowerLim: (self: PlayerData) -> (boolean),
-    ValidTower: (self: PlayerData, towerName: string, towerCost: number) -> (boolean)
 }
 
-local Player = {}
+export type PlayerClass = typeof(setmetatable({} :: PlayerData, {} :: PlayerFunctions))
+
+local Player = {} :: PlayerFunctions
 Player.__index = Player
 --#endregion
 
 --#region Functions
-function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData)
+function Player.new(player: Player, equipped: {string}): (PlayerClass)
     local self = {
         User = player,
-        Cash = 100,
+        Cash = 400, --TODO: Divide by # players
         Equipped = equipped,
         Towers = {},
         EcoTowers = {},
-        Spawners = {},
-        Limit = 20
+        Limit = 60 --TODO: Divide by # players
     }
     self.User:SetAttribute("Cash", self.Cash)
     self.User:SetAttribute("Towers", #self.Towers + #self.EcoTowers)
@@ -47,25 +50,18 @@ function Player.new(player: Player, equipped: {towerName: string}?): (PlayerData
     return setmetatable(self, Player)
 end
 
-function Player:AddTower(tower: Tower.Tower?, ecoTower: Eco.EcoTower?, spawner: Spawner.Spawner?): ()
-    if tower then
-        self:ChangeCash(-tower.Cost)
+function Player:AddTower(tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner): ()
+    self:ChangeCash(-tower.Cost)
+    if tower.Type == "Eco" then
+        table.insert(self.EcoTowers, tower)
+    else
         table.insert(self.Towers, tower)
-        tower.Owner = self.User
-    elseif ecoTower then
-        self:ChangeCash(-ecoTower.Cost)
-        table.insert(self.EcoTowers, ecoTower)
-        ecoTower.Owner = self.User
-    elseif spawner then
-        self:ChangeCash(-spawner.Cost)
-        table.insert(self.Spawners, spawner)
-        spawner.Owner = self.User
     end
     self:ChangeNumTowers()
     return
 end
 
-function Player:SellTower(tower: {Tower.Tower | Spawner.Spawner | Eco.EcoTower}): ()
+function Player:SellTower(tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner): ()
     if table.find(self.Towers, tower) then
         self:ChangeCash(tower.Value * 0.75)
         table.remove(self.Towers, table.find(self.Towers, tower))
@@ -82,7 +78,7 @@ function Player:ChangeNumTowers(): ()
     return
 end
 
-function Player:ChangeCash(value: number): (PlayerData)
+function Player:ChangeCash(value: number): (PlayerClass)
     self.Cash += value
     self.User:SetAttribute("Cash", self.Cash)
     return self
@@ -93,15 +89,19 @@ function Player:CheckCash(value: number): (boolean)
 end
 
 function Player:CheckEquipped(towerName: string): (boolean)
-    return table.find(self.Equipped, towerName)
+    if table.find(self.Equipped, towerName) then
+        return true
+    else
+        return false
+    end
 end
 
 function Player:CheckTowerLim(): (boolean)
     return #self.Towers + #self.EcoTowers < self.Limit
 end
 
-function Player:ValidTower(towerName: string, towerCost: number): (boolean)
-    if self:CheckEquipped(towerName) and self:CheckCash(towerCost) and self:CheckTowerLim() then
+function Player:ValidTower(tower: Tower.Tower | Eco.EcoTower | Spawner.Spawner): (boolean)
+    if self:CheckEquipped(tower.Name) and self:CheckCash(tower.Cost) and self:CheckTowerLim() then
         return true
     else
         return false

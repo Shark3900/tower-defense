@@ -4,18 +4,16 @@ local TowerData = require(script.Parent.TowerData)
 local Maps = require(script.Parent.Parent.EnemyService.Maps)
 local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
 local Tower = require(script.Parent.Tower)
-local Unit = {}
-Unit.__index = Unit
-setmetatable(Unit, Tower)
 
 type UnitFunctions = {
 	__index: UnitFunctions,
-	new: (unitName: string) -> (Unit),
+	new: (unitName: string, unitLevel: number) -> (Unit),
 	Move: (self: Unit, deltaTime: number) -> (Unit?),
 	Collide: (self: Unit, enemy: Enemy.Enemy) -> (boolean?, number),
 }
 
 type UnitData = {
+	Type: string,
 	Part: Part,
 	Spawner: {},
 	Name: string,
@@ -46,6 +44,10 @@ type UnitData = {
 }
 
 export type Unit = typeof(setmetatable({} :: UnitData, {} :: UnitFunctions))
+
+local Unit = {} :: UnitFunctions
+Unit.__index = Unit
+setmetatable(Unit, Tower)
 --#endregion
 
 --#region Functions
@@ -108,7 +110,7 @@ function Unit:Collide(enemy: Enemy.Enemy): (boolean?, number)
 		self.Part:SetAttribute("Health", self.Health)
 		return true, value
 	else
-		local result: {Enemy.Enemy}, value: number = enemy:ChangeHealth(self.Health)
+		local result: Enemy.Enemy?, value: number = enemy:ChangeHealth(self.Health)
 		self.DamageDealt += self.Health
 		self.Health = 0
 		if result == nil then

@@ -31,59 +31,19 @@ end
 --#functions
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
-    --I'm sinning, don't forget about this
-	--TowerService.newTower("Basic", Vector3.new(-1, 0.6, 81))
-    TowerService.newTower("MeleeSpawner", Vector3.new(-1, 0.6, 81))
-
     return
 end
 
 function GameManager.updateLoop(): ()
 	GameManager.Heartbeat = game:GetService("RunService").Heartbeat:Connect(function(dt)
         --local startTime: number = os.clock()
-        --[[
         if #EnemyService.Enemies == 0 and #EnemyService.EnemyQueue == 0 and (tick() - EnemyService.WaveDebounce > 5) then
             local result: {{Name: string, Delay: number}}? = EnemyService.nextWave()
             if result == nil then
                 print("woooo you won!!")
                 GameManager.Heartbeat:Disconnect()
             end
-        end
-        if #EnemyService.EnemyQueue > 0 then
-            EnemyService.spawnEnemy()
-        end
-        changeHealth(-EnemyService.moveEnemies(dt))
-        if GameManager.Health <= 0 then
-            print("you lose :(")
-            GameManager.Heartbeat:Disconnect()
-        end
-        if #EnemyService.Enemies > 0 and #TowerService.Towers > 0 then
-            PlayerService.CashPending += TowerService.attackEnemies()
-        end
-        if #TowerService.Spawners > 0 then
-            TowerService.spawnUnits()
-            if #TowerService.Units > 0 then
-                TowerService.moveUnits(dt)
-                PlayerService.CashPending += TowerService.checkUnitCollision()
-            end
-        end
-        if PlayerService.CashPending > 0 then
-            PlayerService.distributeCash()
-        end
-        if #EnemyService.EnemyRemoveQueue > 0 then
-            EnemyService.removeEnemies() --TODO: Currently adds money for enemies that don't die... fine?
-            PlayerService.distributeCash()
-        end
-        if #TowerService.UnitRemoveQueue > 0 then
-            TowerService.removeUnits()
-        end
-        ]]--
-        if #EnemyService.Enemies == 0 and #EnemyService.EnemyQueue == 0 and (tick() - EnemyService.WaveDebounce > 5) then
-            local result: {{Name: string, Delay: number}}? = EnemyService.nextWave()
-            if result == nil then
-                print("woooo you won!!")
-                GameManager.Heartbeat:Disconnect()
-            end
+            PlayerService.runEcoTowers()
         end
         if #EnemyService.EnemyQueue > 0 then
             EnemyService.spawnEnemy()
