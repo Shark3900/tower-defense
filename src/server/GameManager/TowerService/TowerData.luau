@@ -9,6 +9,8 @@ export type Buff = {
 
 export type TowerTemplate = {
     Type: "Tower",
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
 	Limit: number?,
@@ -21,7 +23,6 @@ export type TowerTemplate = {
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
-	AttackQueue: {},
 	CanArmored: boolean?,
 	CanStealth: boolean?,
 	CanFlying: boolean?,
@@ -36,6 +37,8 @@ export type TowerTemplate = {
 
 export type SpawnerTemplate = {
     Type: "Spawner",
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
@@ -51,6 +54,8 @@ export type SpawnerTemplate = {
 
 export type EcoTemplate = {
     Type: "Eco",
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
@@ -61,6 +66,9 @@ export type EcoTemplate = {
 }
 
 export type UnitTemplate = {
+    Type: "Unit",
+    Part: Part,
+    Owner: Player,
     Name: string,
     Level: number,
     Limit: number?,
