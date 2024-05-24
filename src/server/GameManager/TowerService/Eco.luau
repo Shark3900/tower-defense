@@ -28,13 +28,26 @@ local Eco = {} :: EcoFunctions
 Eco.__index = Eco
 --#endregion
 
+--#region Local Functions
+local function setAttributes(self: EcoTower)
+    self.Part:SetAttribute("Income", self.Income)
+    self.Part:SetAttribute("IncomeGenerated", self.IncomeGenerated)
+    self.Part:SetAttribute("Level", self.Level)
+    self.Part:SetAttribute("Value", self.Value)
+    self.Part:SetAttribute("Cost", self.Cost)
+end
+--#endregion
+
 --#region Functions
 function Eco.new(ecoTemplate: TowerData.EcoTemplate, position: Vector3): (EcoTower)
 	local self = table.clone(ecoTemplate)
+
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
-    self.Part:SetAttribute("IncomeGenerated", self.IncomeGenerated)
-    self.Part.Position = position
+    self.Part.Range.Size = Vector3.new(self.Range * 2, 0.1, self.Range * 2)
     self.Part.Parent = workspace.Towers
+    self.Part.CFrame = CFrame.new(position)
+    setAttributes(self)
+
     return setmetatable(self, Eco)
 end
 

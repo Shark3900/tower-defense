@@ -61,7 +61,6 @@ local function placeTower(actionName, inputState, _inputObject): ()
     if actionName == "PlaceTower" and inputState == Enum.UserInputState.Begin then
         local position = mouse.Hit.Position + Vector3.new(0, 0.6, 0)
         buyTowerEvent:FireServer(selectedTowerToPlace, position)
-        --print(`Place {selectedTowerToPlace} at {position}`)
     end
 
     return

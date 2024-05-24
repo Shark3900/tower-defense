@@ -59,6 +59,17 @@ local function attack(self: Tower, enemy: Enemy.Enemy): (number)
     return value
 end
 
+local function setAttributes(self: Tower)
+    self.Part:SetAttribute("AttackSpeed", self.AttackSpeed)
+    self.Part:SetAttribute("Damage", self.Damage)
+    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+    self.Part:SetAttribute("Level", self.Level)
+    self.Part:SetAttribute("Range", self.Range)
+    self.Part:SetAttribute("Value", self.Value)
+    self.Part:SetAttribute("Cost", self.Cost)
+    self.Part:SetAttribute("AttackPrio", self.AttackPrio)
+end
+
 local targetFunctions = {
     Melee = function() return nil end,
 
@@ -198,8 +209,10 @@ function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (
     self.Attack = attackFunctions[self.AttackType]
     self.FindTarget = targetFunctions[self.AttackPrio]
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
+    self.Part.Range.Size = Vector3.new(self.Range * 2, 0.1, self.Range * 2)
     self.Part.Parent = workspace.Towers
     self.Part.CFrame = CFrame.new(position)
+    setAttributes(self)
 
     return self
 end
