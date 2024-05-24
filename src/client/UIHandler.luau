@@ -11,6 +11,7 @@ local cashCounter = playerHUD.CashCounter.Counter
 local healthCounter = playerHUD.HealthCounter.Counter
 local towerCounter = playerHUD.TowerCounter.Counter
 local towerSelect = playerHUD.Towers
+local towerUI = playerHUD.TowerUI
 
 local function updateCashCounter()
     cashCounter.Text = player:GetAttribute("Cash")
@@ -32,6 +33,23 @@ local function updateTowers(towers: {string})
     return
 end
 
+function UIHandler.createTowerUI(tower)
+    towerUI.TowerName.Text = `{tower.Name} {tower:GetAttribute("Level")}`
+    towerUI.Damage.Text = `Damage: {tower:GetAttribute("Damage")}`
+    towerUI.AttackSpeed.Text = `AttackSpeed: {tower:GetAttribute("AttackSpeed")}`
+    towerUI.Range.Text = `Range: {tower:GetAttribute("Range")}`
+    towerUI.DamageDealt.Text = `DamageDealt: {tower:GetAttribute("DamageDealt")}`
+    --towerUI.TowerCost.Text = tower.Cost
+    --towerUI.TowerValue.Text = tower.Value
+    towerUI.Visible = true
+    return
+end
+
+function UIHandler.hideTowerUI()
+    towerUI.Visible = false
+    return
+end
+
 function UIHandler.update(towers: {string})
     updateTowers(towers)
     updateTowerCounter()
@@ -39,8 +57,8 @@ function UIHandler.update(towers: {string})
     return
 end
 
+workspace:GetAttributeChangedSignal("Health"):Connect(updateHealthCounter) --TODO: Move from ScreenGUI to End part?
 player:GetAttributeChangedSignal("Cash"):Connect(updateCashCounter)
 player:GetAttributeChangedSignal("Towers"):Connect(updateTowerCounter)
-workspace:GetAttributeChangedSignal("Health"):Connect(updateHealthCounter) --TODO: Move from ScreenGUI to End part?
 
 return UIHandler

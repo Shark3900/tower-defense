@@ -9,7 +9,7 @@ type TowerFunctions = {
     new: (towerTemplate: TowerData.TowerTemplate, position: Vector3) -> (Tower),
     Destroy: (self: Tower) -> (),
     Attack: (self: Tower, target: Enemy.Enemy) -> (number),
-    CheckRange: (self: Tower, enemy: Enemy.Enemy) -> (boolean),
+    CheckRange: (self: Tower, object: (Enemy.Enemy | Tower)) -> (boolean),
     FindTarget: (self: Tower) -> (Enemy.Enemy?),
     ChangeTargetType: (self: Tower, attackPrio: string) -> ()
 }
@@ -95,6 +95,8 @@ local targetFunctions = {
 }
 
 local attackFunctions = {
+    Support = function() return 0 end,
+
     Direct = function(self: Tower, target: Enemy.Enemy)
         return attack(self, target)
     end,
@@ -174,8 +176,8 @@ function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (
     local self =  setmetatable(table.clone(towerTemplate), Tower) :: Tower
 
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
-    self.Part.Position = position
     self.Part.Parent = workspace.Towers
+    self.Part.CFrame = CFrame.new(position)
 
     return self
 end
@@ -196,8 +198,8 @@ function Tower:Attack(enemy: Enemy.Enemy): (number)
     return value
 end
 
-function Tower:CheckRange(enemy: Enemy.Enemy): (boolean)
-    if (enemy.Part.Position - self.Part.Position).Magnitude <= self.Range then
+function Tower:CheckRange(object: (Enemy.Enemy | Tower) ): (boolean)
+    if (object.Part.Position - self.Part.Position).Magnitude <= self.Range then
         return true
     else
         return false

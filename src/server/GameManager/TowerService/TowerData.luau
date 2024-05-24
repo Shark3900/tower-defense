@@ -311,12 +311,21 @@ TowerData["Mortar"] = {
 }
 TowerData["Commander"] = {
 	["Defaults"] = {
+        Type = "Support",
         Name = "Commander",
 		Cost = 300,
 		Value = 300,
 		Damage = 2,
 		Range = 10,
-		AttackSpeed = 1.36
+		AttackSpeed = 1.36,
+        AttackType = "Support",
+        Buffs = {
+                Damage = 2,
+                AttackSpeed = 2,
+                Range = 2,
+                SpawnSpeed = 2
+        },
+        BuffedTowers = {}
 	}
 }
 --#endregion
@@ -324,8 +333,8 @@ TowerData["Commander"] = {
 TowerData["MeleeSpawner"] = {
 	["Defaults"] = {
         Name = "MeleeSpawner",
-		Cost = 100,
-        Value = 100,
+		Cost = 200,
+        Value = 200,
         AttackType = "Melee",
         SpawnType = "Melee",
         SpawnSpeed = 20,
@@ -382,6 +391,9 @@ createTower("Tesla", {Level = 2, Cost = 300, Value = 450, Damage = 2, Chain = 4}
 
 createTower("Mortar")
 createTower("Mortar", {Level = 2, Cost = 400, Value = 600, Damage = 8, Radius = 4})
+
+createTower("Commander")
+createTower("Commander", {Level = 2, Cost = 400, Value = 700, Buffs = {Damage = 1.2, AttackSpeed = 1.2, Range = 1.2, SpawnSpeed = 1.2}})
 --#endregion
 
 --#region Spawner Creation
@@ -394,7 +406,7 @@ createSpawner("RifleSpawner", {Level = 2, Cost = 400, Value = 600})
 
 --#region Eco Tower Creation
 createEcoTower("Farm")
-createEcoTower("Farm", {Level = 2, Cost = 400, Income = 125})
+createEcoTower("Farm", {Level = 2, Cost = 400, Value = 600, Income = 125})
 --#endregion
 
 --#region Unit Creation

@@ -13,9 +13,6 @@ export type TowerService = {
     Towers: {Tower.Tower | Eco.EcoTower | Spawner.Spawner | Unit.Unit},
     --Functions
     newTower: (towerType: string, position: Vector3) -> (Tower.Tower | Eco.EcoTower | Spawner.Spawner),
-    newNormalTower: (towerTemplate: {TowerData.TowerTemplate}, position: Vector3) -> (Tower.Tower),
-    newEcoTower: (ecoTemplate: {TowerData.EcoTemplate}, position: Vector3) -> (Eco.EcoTower),
-    newSpawnerTower: (spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3) -> (Spawner.Spawner),
     sellTower: () -> (),
     getTower: (towerName: string, towerLevel: number) -> (TowerData.TowerTemplate | TowerData.EcoTemplate | TowerData.SpawnerTemplate | nil),
     iterateTowers: (deltaTime: number) -> (number)
@@ -28,6 +25,24 @@ TowerService.Towers = {}
 --#endregion
 
 --#region Local Functions
+local function newNormalTower(towerTemplate: {TowerData.TowerTemplate}, position: Vector3): (Tower.Tower)
+    local tower = Tower.new(towerTemplate, position)
+    table.insert(TowerService.Towers, tower)
+    return tower
+end
+
+local function newEcoTower(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.EcoTower)
+    local ecoTower = Eco.new(ecoTemplate, position)
+    table.insert(TowerService.Towers, ecoTower)
+    return ecoTower
+end
+
+local function newSpawnerTower(spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner.Spawner)
+    local spawner = Spawner.new(spawnerTemplate, position)
+    table.insert(TowerService.Towers, spawner)
+    return spawner
+end
+
 local function attack(tower: Tower.Tower): (number)
     local damage = 0
 
@@ -39,7 +54,7 @@ local function attack(tower: Tower.Tower): (number)
             EnemyService.sortHealth()
         end
     end
-    
+
     return damage
 end
 
@@ -120,31 +135,13 @@ end
 --#region Functions
 function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower | Eco.EcoTower | Spawner.Spawner)
     local newTower = TowerData[towerName][1]
-    if newTower.Type == "Tower" then
-        return TowerService.newNormalTower(newTower, position)
+    if newTower.Type == "Tower" or newTower.Type == "Support" then
+        return newNormalTower(newTower, position)
     elseif newTower.Type == "Eco" then
-        return TowerService.newEcoTower(newTower, position)
+        return newEcoTower(newTower, position)
     elseif newTower.Type == "Spawner" then
-        return TowerService.newSpawnerTower(newTower, position)
+        return newSpawnerTower(newTower, position)
     end
-end
-
-function TowerService.newNormalTower(towerTemplate: {TowerData.TowerTemplate}, position: Vector3): (Tower.Tower)
-    local tower = Tower.new(towerTemplate, position)
-    table.insert(TowerService.Towers, tower)
-    return tower
-end
-
-function TowerService.newEcoTower(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.EcoTower)
-    local ecoTower = Eco.new(ecoTemplate, position)
-    table.insert(TowerService.Towers, ecoTower)
-    return ecoTower
-end
-
-function TowerService.newSpawnerTower(spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner.Spawner)
-    local spawner = Spawner.new(spawnerTemplate, position)
-    table.insert(TowerService.Towers, spawner)
-    return spawner
 end
 
 function TowerService.sellTower(): ()

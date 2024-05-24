@@ -31,7 +31,7 @@ PlayerService.CashPending = 0
 
 --#region Functions
 function PlayerService.newPlayer(player: Player): (Player.PlayerClass)
-    PlayerService.Players[player.Name] =  Player.new(player, {"Basic", "Mortar", "Tesla", "Farm"})
+    PlayerService.Players[player.Name] =  Player.new(player, {"Basic", "Mortar", "Commander", "Farm"})
     Events.SetTowers:FireClient(player, PlayerService.Players[player.Name].Equipped)
     return PlayerService.Players[player.Name]
 end
@@ -41,7 +41,7 @@ function PlayerService.distributeCash(): ()
 
     for _, player in PlayerService.Players do
         player:ChangeCash(disbursement)
-    end
+    end 
 
     PlayerService.CashPending = 0
 

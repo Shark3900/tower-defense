@@ -26,9 +26,12 @@ local function selectPlacedTower(actionName, inputState, _inputObject): ()
     if actionName == "SelectPlacedTower" and inputState == Enum.UserInputState.Begin then
         local target = mouse.Target
         if target and target.Parent.Name == "Towers" and target:GetAttribute("Owner") == player.Name then
+            if selectedTower ~= nil then
+                selectedTower.Range.Transparency = 1
+            end
             selectedTower = target
-            --TODO: Add UI for selected tower
-            print(`Selected tower {selectedTower}`)
+            selectedTower.Range.Transparency = 0.5
+            UIHandler.createTowerUI(selectedTower)
         end
     end
 
@@ -45,8 +48,9 @@ local function deselect(actionName, inputState, _inputObject): ()
             ContextActionService:BindAction("SelectPlacedTower", selectPlacedTower, true, Enum.UserInputType.MouseButton1)
         end
         if selectedTower then
-            --TODO: Delete UI for selected tower
+            selectedTower.Range.Transparency = 1
             selectedTower = nil
+            UIHandler.hideTowerUI()
         end
     end
 
@@ -77,8 +81,8 @@ local function setTowerPlacement(key: number): ()
     ContextActionService:BindAction("PlaceTower", placeTower, true, Enum.UserInputType.MouseButton1)
     selectedTowerToPlace = towers[key]
     previewTower = game.ReplicatedStorage.Towers[selectedTowerToPlace]:Clone()
-    previewTower.Position = mouse.Hit.Position + Vector3.new(0, 0.6, 0)
     previewTower.Parent = workspace.Previews
+    previewTower.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 0.6, 0))
     print(`Selected {selectedTowerToPlace}`)
 
     return
@@ -99,7 +103,7 @@ local function selectTowerToPlace(actionName, inputState, _inputObject): ()
 end
 
 local function drawPreviewTower(position: Vector3): ()
-    previewTower.Position = Vector3.new(position.X, position.Y+0.6, position.Z)
+    previewTower.CFrame = CFrame.new(position.X, position.Y+0.6, position.Z)
 
     return
 end
@@ -124,7 +128,6 @@ end
 
 --#region Listeners
 setTowersEvent.OnClientEvent:Connect(setTowers)
-
 player.CharacterAdded:Connect(onCharacterAdded)
 
 if player.Character then
