@@ -98,10 +98,15 @@ local attackFunctions = {
     Support = function() return 0 end,
 
     Direct = function(self: Tower, target: Enemy.Enemy)
-        return attack(self, target)
+        self.AttackTimer = tick()
+        local damage = attack(self, target)
+        self.DamageDealt += damage
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+        return damage
     end,
 
     Circle = function(self: Tower, target: Enemy.Enemy)
+        self.AttackTimer = tick()
         local damage: number = 0
 
         for _, enemy in EnemyService.Enemies do
@@ -110,10 +115,14 @@ local attackFunctions = {
             end
         end
 
+        self.DamageDealt += damage
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+
         return damage
     end,
 
     Box = function(self: Tower, target: Enemy.Enemy)
+        self.AttackTimer = tick()
         local damage: number = 0
         local halfWidth: number = self.Width / 2
 
@@ -127,10 +136,14 @@ local attackFunctions = {
             end
         end
 
+        self.DamageDealt += damage
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+
         return damage
     end,
 
     Cone = function(self: Tower, target: Enemy.Enemy)
+        self.AttackTimer = tick()
         local damage: number = 0
         local towerPos: Vector3 = self.Part.Position
         local direction: Vector3 = (target.Part.Position - towerPos).Unit
@@ -146,11 +159,15 @@ local attackFunctions = {
             end
         end
 
+        self.DamageDealt += damage
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+
         return damage
     end,
 
     --TODO: Chain might be inconsistent towards behind targets -- Possibly inconsistent DistanceSort?
     Chain = function(self: Tower, target: Enemy.Enemy)
+        self.AttackTimer = tick()
         local damage: number = 0
         damage += attack(self, target)
 
@@ -166,6 +183,9 @@ local attackFunctions = {
             end
         end
 
+        self.DamageDealt += damage
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+
         return damage
     end
 }
@@ -175,6 +195,8 @@ local attackFunctions = {
 function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (Tower)
     local self =  setmetatable(table.clone(towerTemplate), Tower) :: Tower
 
+    self.Attack = attackFunctions[self.AttackType]
+    self.FindTarget = targetFunctions[self.AttackPrio]
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
     self.Part.Parent = workspace.Towers
     self.Part.CFrame = CFrame.new(position)
@@ -191,10 +213,7 @@ function Tower:Destroy(): ()
 end
 
 function Tower:Attack(enemy: Enemy.Enemy): (number)
-    self.AttackTimer = tick()
     local value: number = attackFunctions[self.AttackType](self, enemy)
-    self.DamageDealt += value
-    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
     return value
 end
 
@@ -211,7 +230,7 @@ function Tower:FindTarget(): (Enemy.Enemy?)
 end
 
 function Tower:ChangeTargetType(attackPrio: string): ()
-    self.AttackPrio = attackPrio
+    self.FindTarget = targetFunctions[attackPrio]
     return
 end
 --#endregion
