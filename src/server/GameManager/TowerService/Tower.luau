@@ -30,6 +30,9 @@ type TowerData = {
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
+    StunTimer: number?,
+    SlowTimer: number?,
+    SlowModifier: number?,
     Chain: number?, --If chain attack
     ChainRange: number?, --If chain attack
     Angle: number?, --If cone AOE
@@ -51,11 +54,23 @@ Tower.__index = Tower
 --#region Local Functions
 local function attack(self: Tower, enemy: Enemy.Enemy): (number)
     local result: Enemy.Enemy?, value: number = enemy:ChangeHealth(self.Damage)
+
     if result == nil then
         if table.find(EnemyService.EnemyRemoveQueue, enemy) == nil then
             table.insert(EnemyService.EnemyRemoveQueue, enemy)
         end
     end
+
+    if self.SlowTimer then
+        enemy.SlowTimer = tick() + self.SlowTimer
+        enemy.SpeedModifier = self.SlowModifier
+    end
+    
+    if self.StunTimer then
+        enemy.StunTimer = tick() + self.StunTimer
+        enemy.SpeedModifier = 0
+    end
+
     return value
 end
 
@@ -219,6 +234,12 @@ end
 
 function Tower:Destroy(): ()
 	self.Part:Destroy()
+    if self.BuffedTowers then
+        for i = #self.BuffedTowers, 1, -1 do
+            local tower = self.BuffedTowers[i]
+            self:UnbuffTower(tower)
+        end
+    end
 	setmetatable(self, nil)
 	table.clear(self)
 	table.freeze(self)
@@ -244,6 +265,26 @@ end
 
 function Tower:ChangeTargetType(attackPrio: string): ()
     self.FindTarget = targetFunctions[attackPrio]
+    return
+end
+
+function Tower:BuffTower(tower: Tower)
+    for _, buff in self.Buffs do
+        if tower[buff] then
+            tower[buff] *= self.Buffs[buff]
+        end
+    end
+    table.insert(self.BuffedTowers, tower)
+    return
+end
+
+function Tower:UnbuffTower(tower: Tower)
+    for _, buff in self.Buffs do
+        if tower[buff] then
+            tower[buff] /= self.Buffs[buff]
+        end
+    end
+    table.remove(self.BuffedTowers, table.find(self.BuffedTowers, tower))
     return
 end
 --#endregion

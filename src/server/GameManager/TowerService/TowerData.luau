@@ -23,6 +23,9 @@ export type TowerTemplate = {
 	AttackPrio: string,
 	AttackSpeed: number,
 	AttackTimer: number,
+    StunTimer: number?,
+    SlowTimer: number?,
+    SlowModifier: number?,
 	CanArmored: boolean?,
 	CanStealth: boolean?,
 	CanFlying: boolean?,
@@ -328,11 +331,26 @@ TowerData["Commander"] = {
         BuffedTowers = {}
 	}
 }
+TowerData["Glue Gunner"] = {
+    ["Defaults"] = {
+        Name = "Glue Gunner",
+        Cost = 150,
+        Value = 150,
+        Damage = 0,
+        Range = 10,
+        AttackSpeed = 1.36,
+        AttackType = "Circle",
+        Radius = 1,
+        SlowModifier = 0.5,
+        SlowTimer = 2,
+    }
+
+}
 --#endregion
 --#region Spawners
-TowerData["MeleeSpawner"] = {
+TowerData["Melee Spawner"] = {
 	["Defaults"] = {
-        Name = "MeleeSpawner",
+        Name = "Melee Spawner",
 		Cost = 200,
         Value = 200,
         AttackType = "Melee",
@@ -340,9 +358,9 @@ TowerData["MeleeSpawner"] = {
         SpawnSpeed = 20,
 	}
 }
-TowerData["RifleSpawner"] = {
+TowerData["Rifle Spawner"] = {
 	["Defaults"] = {
-        Name = "RifleSpawner",
+        Name = "Rifle Spawner",
 		Cost = 200,
         Value = 200,
         AttackType = "Ranged",
@@ -394,14 +412,17 @@ createTower("Mortar", {Level = 2, Cost = 400, Value = 600, Damage = 8, Radius = 
 
 createTower("Commander")
 createTower("Commander", {Level = 2, Cost = 400, Value = 700, Buffs = {Damage = 1.2, AttackSpeed = 1.2, Range = 1.2, SpawnSpeed = 1.2}})
+
+createTower("Glue Gunner")
+createTower("Glue Gunner", {Level = 2, Cost = 300, Value = 450, Radius = 2, Slow = 0.45, SlowTimer = 3})
 --#endregion
 
 --#region Spawner Creation
-createSpawner("MeleeSpawner")
-createSpawner("MeleeSpawner", {Level = 2, Cost = 200, Value = 400})
+createSpawner("Melee Spawner")
+createSpawner("Melee Spawner", {Level = 2, Cost = 200, Value = 400})
 
-createSpawner("RifleSpawner")
-createSpawner("RifleSpawner", {Level = 2, Cost = 400, Value = 600})
+createSpawner("Rifle Spawner")
+createSpawner("Rifle Spawner", {Level = 2, Cost = 400, Value = 600})
 --#endregion
 
 --#region Eco Tower Creation

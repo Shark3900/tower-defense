@@ -25,9 +25,7 @@ type EnemyData = {
 	Index: number,
 	HealthIndex: number,
 	DistanceIndex: number,
-	Stunned: boolean?,
 	StunTimer: number?,
-	Slowed: boolean?,
 	SlowTimer: number?,
 	Boss: boolean?,
 	Armored: boolean?,
@@ -70,6 +68,17 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 	local direction: Vector3 = waypoint - self.Part.Position
 	local waypointDistance: number = direction.Magnitude
 	local normalized: Vector3 = direction / waypointDistance
+
+	if self.SpeedModifier ~= 1 then
+		if self.SlowTimer and tick() - self.SlowTimer > 0 then
+			self.SlowTimer = nil
+			self.SpeedModifier = 1
+		end
+		if self.StunTimer and tick() - self.StunTimer > 0 then
+			self.StunTimer = nil
+			self.SpeedModifier = 1
+		end
+	end
 
 	if moveDistance < waypointDistance then
 		self.Part.Position = self.Part.Position + normalized * moveDistance

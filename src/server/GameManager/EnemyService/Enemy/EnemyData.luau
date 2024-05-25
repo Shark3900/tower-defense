@@ -2,12 +2,23 @@
 --#region Defintions and Declaration
 type EnemyData = {
 	Enemy: {
+		Part: Part?,
 		MaxHealth: number,
+		Health: number?,
 		Speed: number,
 		SpeedModifier: number,
 		Value: number,
 		Waypoint: number,
-		Distance: number
+		Distance: number,
+		Index: number?,
+		HealthIndex: number?,
+		DistanceIndex: number?,
+		SlowTimer: number?,
+		StunTimer: number?,
+		Boss: boolean?,
+		Armored: boolean?,
+		Stealth: boolean?,
+		Flying: boolean?
 	}
 }
 
@@ -17,7 +28,9 @@ local defaults = {
 	SpeedModifier = 1,
 	Value = 6,
 	Waypoint = 1,
-	Distance = 0
+	Distance = 0,
+	SlowTimer = nil,
+	StunTimer = nil,
 }
 
 local EnemyData = {}
