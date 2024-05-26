@@ -74,6 +74,15 @@ local function attack(self: Tower, enemy: Enemy.Enemy): (number)
     return value
 end
 
+local function updateAmmo(self: Tower)
+    if self.Ammo == 0 then
+        self.AttackTimer = tick() + self.ReloadTime
+        self.Ammo = self.MaxAmmo
+    else
+        self.Ammo -= 1
+    end
+end
+
 local function setAttributes(self: Tower)
     self.Part:SetAttribute("AttackSpeed", self.AttackSpeed)
     self.Part:SetAttribute("Damage", self.Damage)
@@ -125,6 +134,9 @@ local attackFunctions = {
 
     Direct = function(self: Tower, target: Enemy.Enemy)
         self.AttackTimer = tick()
+        if self.Ammo then
+            updateAmmo(self)
+        end
         local damage = attack(self, target)
         self.DamageDealt += damage
         self.Part:SetAttribute("DamageDealt", self.DamageDealt)
@@ -149,6 +161,9 @@ local attackFunctions = {
 
     Box = function(self: Tower, target: Enemy.Enemy)
         self.AttackTimer = tick()
+        if self.Ammo then
+            updateAmmo(self)
+        end
         local damage: number = 0
         local halfWidth: number = self.Width / 2
 
@@ -170,6 +185,9 @@ local attackFunctions = {
 
     Cone = function(self: Tower, target: Enemy.Enemy)
         self.AttackTimer = tick()
+        if self.Ammo then
+            updateAmmo(self)
+        end
         local damage: number = 0
         local towerPos: Vector3 = self.Part.Position
         local direction: Vector3 = (target.Part.Position - towerPos).Unit
@@ -194,6 +212,9 @@ local attackFunctions = {
     --TODO: Chain might be inconsistent towards behind targets -- Possibly inconsistent DistanceSort?
     Chain = function(self: Tower, target: Enemy.Enemy)
         self.AttackTimer = tick()
+        if self.Ammo then
+            updateAmmo(self)
+        end
         local damage: number = 0
         damage += attack(self, target)
 
@@ -244,11 +265,6 @@ function Tower:Destroy(): ()
 	table.clear(self)
 	table.freeze(self)
 	return
-end
-
-function Tower:Attack(enemy: Enemy.Enemy): (number)
-    local value: number = attackFunctions[self.AttackType](self, enemy)
-    return value
 end
 
 function Tower:CheckRange(object: (Enemy.Enemy | Tower) ): (boolean)

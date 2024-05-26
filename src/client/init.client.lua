@@ -7,8 +7,9 @@ local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 mouse.TargetFilter = workspace.Previews
 
-local buyTowerEvent: RemoteEvent = game.ReplicatedStorage.Events.BuyTower
 local setTowersEvent: RemoteEvent = game.ReplicatedStorage.Events.SetTowers
+local buyTowerEvent: RemoteEvent = game.ReplicatedStorage.Events.BuyTower
+local upgradeTowerEvent: RemoteEvent = game.ReplicatedStorage.Events.UpgradeTower
 
 local towers: {string} = {}
 local previewTower: Part? = nil
@@ -66,6 +67,14 @@ local function placeTower(actionName, inputState, _inputObject): ()
     return
 end
 
+local function upgradeTower(): ()
+    if selectedTower then
+        upgradeTowerEvent:FireServer(selectedTower)
+    end
+
+    return
+end
+
 local function setTowerPlacement(key: number): ()
     if selectedTowerToPlace == towers[key] then
         return
@@ -82,7 +91,6 @@ local function setTowerPlacement(key: number): ()
     previewTower = game.ReplicatedStorage.Towers[selectedTowerToPlace]:Clone()
     previewTower.Parent = workspace.Previews
     previewTower.CFrame = CFrame.new(mouse.Hit.Position + Vector3.new(0, 0.6, 0))
-    print(`Selected {selectedTowerToPlace}`)
 
     return
 end

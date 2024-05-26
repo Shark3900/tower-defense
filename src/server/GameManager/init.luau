@@ -31,6 +31,7 @@ end
 --#functions
 function GameManager.start(map: string): ()
     GameManager.Map = Maps.set(map)
+    TowerService.updatePreviews()
     return
 end
 

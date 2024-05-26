@@ -49,7 +49,6 @@ function Spawner.new(spawnerTemplate: TowerData.SpawnerTemplate, position: Vecto
 	local self = table.clone(spawnerTemplate)
 
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
-    self.Part.Range.Size = Vector3.new(self.Range * 2, 0.1, self.Range * 2)
     self.Part.Parent = workspace.Towers
     self.Part.CFrame = CFrame.new(position)
     setAttributes(self)

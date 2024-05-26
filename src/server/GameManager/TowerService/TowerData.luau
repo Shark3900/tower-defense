@@ -29,6 +29,9 @@ export type TowerTemplate = {
 	CanArmored: boolean?,
 	CanStealth: boolean?,
 	CanFlying: boolean?,
+    MaxAmmo: number?, --If tower has ammo
+    Ammo: number?, --If tower has ammo
+    ReloadTime: number?, --If tower has ammo
 	Chain: number?, --If chain attack
 	ChainRange: number?, --If chain attack
 	Angle: number?, --If cone AOE

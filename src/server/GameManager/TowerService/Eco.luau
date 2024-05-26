@@ -43,7 +43,6 @@ function Eco.new(ecoTemplate: TowerData.EcoTemplate, position: Vector3): (EcoTow
 	local self = table.clone(ecoTemplate)
 
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
-    self.Part.Range.Size = Vector3.new(self.Range * 2, 0.1, self.Range * 2)
     self.Part.Parent = workspace.Towers
     self.Part.CFrame = CFrame.new(position)
     setAttributes(self)

@@ -167,6 +167,17 @@ function TowerService.iterateTowers(deltaTime: number): (number)
 
     return damage
 end
+
+function TowerService.updatePreviews()
+    for _, data in TowerData do
+        if data[1].Type ~= "Unit" then
+            game.ReplicatedStorage.Towers[data[1].Name]:SetAttribute("Cost", data[1].Cost)
+        end
+        if data[1].Type == "Tower" then
+            game.ReplicatedStorage.Towers[data[1].Name].Range.Size = Vector3.new(0.1, data[1].Range * 2, data[1].Range * 2)
+        end
+    end
+end
 --#endregion
 
 return TowerService
