@@ -4,17 +4,14 @@ local EnemyService = require(script.Parent.EnemyService)
 local Enemy = require(script.Parent.EnemyService.Enemy)
 local TowerData = require(script.TowerData)
 local Tower = require(script.Tower)
-local Eco = require(script.Eco)
-local Spawner = require(script.Spawner)
-local Unit = require(script.Unit)
 
 export type TowerService = {
     --Properties
-    Towers: {Tower.Tower | Eco.EcoTower | Spawner.Spawner | Unit.Unit},
+    Towers: {Tower.Tower},
     --Functions
-    newTower: (towerType: string, position: Vector3) -> (Tower.Tower | Eco.EcoTower | Spawner.Spawner),
+    newTower: (towerType: string, position: Vector3) -> (Tower.Tower),
     sellTower: () -> (),
-    getTower: (towerName: string, towerLevel: number) -> (TowerData.TowerTemplate | TowerData.EcoTemplate | TowerData.SpawnerTemplate | nil),
+    getTower: (towerName: string, towerLevel: number) -> (TowerData.TowerTemplate?),
     iterateTowers: (deltaTime: number) -> (number)
 }
 --#endregion
@@ -25,24 +22,6 @@ TowerService.Towers = {}
 --#endregion
 
 --#region Local Functions
-local function newNormalTower(towerTemplate: {TowerData.TowerTemplate}, position: Vector3): (Tower.Tower)
-    local tower = Tower.new(towerTemplate, position)
-    table.insert(TowerService.Towers, tower)
-    return tower
-end
-
-local function newEcoTower(ecoTemplate: {TowerData.EcoTemplate}, position: Vector3): (Eco.EcoTower)
-    local ecoTower = Eco.new(ecoTemplate, position)
-    table.insert(TowerService.Towers, ecoTower)
-    return ecoTower
-end
-
-local function newSpawnerTower(spawnerTemplate: {TowerData.SpawnerTemplate}, position: Vector3): (Spawner.Spawner)
-    local spawner = Spawner.new(spawnerTemplate, position)
-    table.insert(TowerService.Towers, spawner)
-    return spawner
-end
-
 local function attack(tower: Tower.Tower): (number)
     local damage = 0
 
@@ -58,22 +37,22 @@ local function attack(tower: Tower.Tower): (number)
     return damage
 end
 
-local function spawnUnit(spawner: Spawner.Spawner): ()
+local function spawnUnit(spawner: Tower.Tower): ()
     if tick() - spawner.SpawnTimer > spawner.SpawnSpeed then
-        local unit: Unit.Unit = spawner:SpawnUnit()
+        local unit: Tower.Tower = spawner:SpawnUnit()
         table.insert(TowerService.Towers, unit)
     end
 
     return
 end
 
-local function removeUnit(unit: Unit.Unit): ()
+local function removeUnit(unit: Tower.Tower): ()
     table.remove(TowerService.Towers, table.find(TowerService.Towers, unit))
     unit.Spawner:RemoveUnit()
     return
 end
 
-local function collide(unit: Unit.Unit, enemy: Enemy.Enemy): (boolean?, number)
+local function collide(unit: Tower.Tower, enemy: Enemy.Enemy): (boolean?, number)
     local result: boolean?, value: number = unit:Collide(enemy)
     if result == true then
         if table.find(EnemyService.EnemyRemoveQueue, enemy) == nil then
@@ -91,7 +70,7 @@ local function collide(unit: Unit.Unit, enemy: Enemy.Enemy): (boolean?, number)
     return result, value
 end
 
-local function checkUnitCollision(unit: Unit.Unit): (number)
+local function checkUnitCollision(unit: Tower.Tower): (number)
     local damage = 0
     for _, enemy in EnemyService.DistanceSort do
         if unit.Waypoint == enemy.Waypoint - 1 and unit.Distance > enemy.Distance then
@@ -114,7 +93,7 @@ local function checkUnitCollision(unit: Unit.Unit): (number)
     return damage
 end
 
-local function iterateUnit(unit: Unit.Unit, deltaTime: number): (number)
+local function iterateUnit(unit: Tower.Tower, deltaTime: number): (number)
     local damage = 0
     local result = unit:Move(deltaTime)
 
@@ -133,22 +112,18 @@ end
 --#endregion
 
 --#region Functions
-function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower | Eco.EcoTower | Spawner.Spawner)
-    local newTower = TowerData[towerName][1]
-    if newTower.Type == "Tower" or newTower.Type == "Support" then
-        return newNormalTower(newTower, position)
-    elseif newTower.Type == "Eco" then
-        return newEcoTower(newTower, position)
-    elseif newTower.Type == "Spawner" then
-        return newSpawnerTower(newTower, position)
-    end
+function TowerService.newTower(towerName: string, position: Vector3): (Tower.Tower)
+    local towerTemplate = TowerData[towerName][1]
+    local tower = Tower.new(towerTemplate, position)
+    table.insert(TowerService.Towers, tower)
+    return tower
 end
 
 function TowerService.sellTower(): ()
 
 end
 
-function TowerService.getTower(towerName: string, towerLevel: number): (TowerData.TowerTemplate | TowerData.EcoTemplate | TowerData.SpawnerTemplate | nil)
+function TowerService.getTower(towerName: string, towerLevel: number): (TowerData.TowerTemplate?)
     return TowerData[towerName][towerLevel]
 end
 

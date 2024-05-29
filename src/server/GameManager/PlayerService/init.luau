@@ -4,8 +4,6 @@ local Events = game.ReplicatedStorage.Events
 local TowerService = require(script.Parent.TowerService)
 local TowerData = require(script.Parent.TowerService.TowerData)
 local Tower = require(script.Parent.TowerService.Tower)
-local Eco = require(script.Parent.TowerService.Eco)
-local Spawner = require(script.Parent.TowerService.Spawner)
 local Players = game:GetService("Players")
 local Player = require(script.Player)
 
@@ -16,7 +14,7 @@ export type PlayerService = {
     --Functions
     newPlayer: (player: Player) -> (Player.PlayerClass),
     distributeCash: () -> (),
-    buyTower: (playerArg: Player, towerName: string, position: Vector3) -> (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil),
+    buyTower: (playerArg: Player, towerName: string, position: Vector3) -> (Tower.Tower?),
     sellTower: (playerArg: Player, tower: Tower.Tower) -> (),
     upgradeTower: (playerArg: Player, tower: Tower.Tower) -> (),
     runEcoTowers: () -> ()
@@ -48,11 +46,11 @@ function PlayerService.distributeCash(): ()
     return
 end
 
-function PlayerService.buyTower(playerArg: Player, towerName: string, position: Vector3): (Tower.Tower | Eco.EcoTower | Spawner.Spawner | nil)
+function PlayerService.buyTower(playerArg: Player, towerName: string, position: Vector3): (Tower.Tower?)
     local player: Player.PlayerClass = PlayerService.Players[playerArg.Name]
-    local tower: TowerData.TowerTemplate | TowerData.EcoTemplate | TowerData.SpawnerTemplate | nil = TowerService.getTower(towerName, 1)
+    local tower: TowerData.TowerTemplate? = TowerService.getTower(towerName, 1)
     if tower and player:ValidTower(tower) then
-        local newTower: Tower.Tower | Eco.EcoTower | Spawner.Spawner = TowerService.newTower(towerName, position)
+        local newTower: Tower.Tower = TowerService.newTower(towerName, position)
         newTower.Owner = playerArg
         newTower.Part:SetAttribute("Owner", playerArg.Name)
         player:AddTower(newTower)
@@ -72,7 +70,7 @@ end
 
 function PlayerService.upgradeTower(playerArg: Player, tower: Tower.Tower): ()
     local player: Player.PlayerClass = PlayerService.Players[playerArg.Name]
-    local upgrade: TowerData.TowerTemplate | TowerData.EcoTemplate | TowerData.SpawnerTemplate | nil = TowerService.getTower(tower.Name, tower.Level + 1)
+    local upgrade: TowerData.TowerTemplate? = TowerService.getTower(tower.Name, tower.Level + 1)
     if upgrade and player:CheckCash(upgrade.Cost) then
         player:ChangeCash(-upgrade.Cost)
         tower:Upgrade()

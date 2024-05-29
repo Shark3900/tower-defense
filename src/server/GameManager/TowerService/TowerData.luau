@@ -8,97 +8,55 @@ export type Buff = {
 }
 
 export type TowerTemplate = {
+    --All Tower Properties
     Type: string,
     Part: Part,
     Owner: Player,
     Name: string,
     Level: number,
-	Limit: number?,
-	Cost: number,
-	Value: number,
-	Damage: number,
-	DamageDealt: number,
-	Range: number,
-	AttackType: string, --Direct, Circle, Box, Cone
-	AttackPrio: string,
-	AttackSpeed: number,
-	AttackTimer: number,
-    StunTimer: number?,
-    SlowTimer: number?,
-    SlowModifier: number?,
-	CanArmored: boolean?,
-	CanStealth: boolean?,
-	CanFlying: boolean?,
-    MaxAmmo: number?, --If tower has ammo
-    Ammo: number?, --If tower has ammo
-    ReloadTime: number?, --If tower has ammo
-	Chain: number?, --If chain attack
-	ChainRange: number?, --If chain attack
-	Angle: number?, --If cone AOE
-	Radius: number?, --If circle AOE
-	Width: number?, --If rectangle AOE
-	Buffs: {Buff}?, --If support tower
-	BuffedTowers: {}?, --If support tower
-}
-
-export type SpawnerTemplate = {
-    Type: string,
-    Part: Part,
-    Owner: Player,
-    Name: string,
-    Level: number,
-    Limit: number?,
+    Limit: number?, --TODO: Implement tower limit
     Cost: number,
     Value: number,
-    DamageDealt: number,
-    AttackType: string,
-    SpawnType: string,
-    SpawnSpeed: number,
-    SpawnTimer: number,
-    Units: {},
-}
-
-export type EcoTemplate = {
-    Type: string,
-    Part: Part,
-    Owner: Player,
-    Name: string,
-    Level: number,
-    Limit: number?,
-    Cost: number,
-    Value: number,
-    Income: number,
-    IncomeGenerated: number,
-    IncomeTimer: number
-}
-
-export type UnitTemplate = {
-    Type: string,
-    Part: Part,
-    Owner: Player,
-    Name: string,
-    Level: number,
-    Limit: number?,
-    MaxHealth: number,
-    Speed: number,
-    SpeedModifier: number,
-    Distance: number,
-    DamageDealt: number,
+    --Normal, Support, and Unit Properties
     Damage: number?,
+    DamageDealt: number?,
     Range: number?,
-    AttackType: string?, --Direct, Circle, Box, Cone
+    AttackType: string?,
     AttackPrio: string?,
     AttackSpeed: number?,
     AttackTimer: number?,
-    AttackQueue: {}?,
-    CanArmored: boolean?,
-    CanStealth: boolean?,
-    CanFlying: boolean?,
-    Chain: number?, --If chain attack
-    ChainRange: number?, --If chain attack
+    StunTimer: number?,
+    SlowTimer: number?,
+    SlowModifier: number?,
     Angle: number?, --If cone AOE
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
+    Chain: number?, --If chain attack
+    ChainRange: number?, --If chain attack
+    Buffs: {Buff}?, --If support tower
+    BuffedTowers: {}?, --If support tower
+    Targets: {}?, --If ramping tower
+    TargetArmored: boolean?,
+    TargetStealth: boolean?,
+    TargetFlying: boolean?,
+    --Eco Tower Properties
+    Income: number?,
+    IncomeGenerated: number?,
+    --Spawner Tower Properties
+    SpawnType: string?,
+    SpawnSpeed: number?,
+    SpawnTimer: number?,
+    Units: {}?,
+    --Unit Properties
+    Spawner: {}?,
+    MaxHealth: number?,
+    Health: number?,
+    Speed: number?,
+    SpeedModifier: number?,
+    Waypoint: number?,
+    Distance: number?,
+    Index: number?,
+    UnitIndex: number?,
     Stunned: boolean?,
     Slowed: boolean?,
     Flying: boolean?
@@ -135,7 +93,7 @@ local unitDefaults = {
 	SpeedModifier = 1,
 	Distance = 0,
 	DamageDealt = 0,
-    AttackType = "Melee"
+    AttackType = "Nah"
 }
 
 local rangedUnitDefaults = {
@@ -173,7 +131,7 @@ local function createTower(name: string, customValues: {TowerTemplate}?)
     return newTower
 end
 
-local function createSpawner(name: string, customValues: {SpawnerTemplate}?)
+local function createSpawner(name: string, customValues: {TowerTemplate}?)
     local newSpawner = {}
 	local newSpawnerDefaults = TowerData[name]["Defaults"]
 
@@ -196,7 +154,7 @@ local function createSpawner(name: string, customValues: {SpawnerTemplate}?)
     return newSpawner
 end
 
-local function createEcoTower(name: string, customValues: {EcoTemplate}?)
+local function createEcoTower(name: string, customValues: {TowerTemplate}?)
     local newEco = {}
     local newEcoDefaults = TowerData["Farm"]["Defaults"]
 
@@ -219,7 +177,7 @@ local function createEcoTower(name: string, customValues: {EcoTemplate}?)
     return newEco
 end
 
-local function createUnit(name: string, customValues: {UnitTemplate}?)
+local function createUnit(name: string, customValues: {TowerTemplate}?)
     local newUnit = {}
     local newUnitDefaults = TowerData[name]["Defaults"]
 
@@ -242,7 +200,7 @@ local function createUnit(name: string, customValues: {UnitTemplate}?)
     return newUnit
 end
 
-local function createRangedUnit(name: string, customValues: {UnitTemplate}?)
+local function createRangedUnit(name: string, customValues: {TowerTemplate}?)
     local newUnit = {}
     local newUnitDefaults = TowerData[name]["Defaults"]
 
@@ -324,7 +282,7 @@ TowerData["Commander"] = {
 		Damage = 2,
 		Range = 10,
 		AttackSpeed = 1.36,
-        AttackType = "Support",
+        AttackType = "Nah",
         Buffs = {
                 Damage = 2,
                 AttackSpeed = 2,
@@ -356,7 +314,7 @@ TowerData["Melee Spawner"] = {
         Name = "Melee Spawner",
 		Cost = 200,
         Value = 200,
-        AttackType = "Melee",
+        AttackType = "Nah",
         SpawnType = "Melee",
         SpawnSpeed = 20,
 	}
