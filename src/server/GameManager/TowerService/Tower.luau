@@ -3,6 +3,7 @@
 local TowerData = require(script.Parent.TowerData)
 local EnemyService = require(script.Parent.Parent.EnemyService)
 local Enemy = require(script.Parent.Parent.EnemyService.Enemy)
+local Maps = require(script.Parent.Parent.EnemyService.Maps)
 
 type TowerFunctions = {
     __index: TowerFunctions,
@@ -11,10 +12,18 @@ type TowerFunctions = {
     Attack: (self: Tower, target: Enemy.Enemy) -> (number),
     CheckRange: (self: Tower, object: (Enemy.Enemy | Tower)) -> (boolean),
     FindTarget: (self: Tower) -> (Enemy.Enemy?),
-    ChangeTargetType: (self: Tower, attackPrio: string) -> ()
+    ChangeTargetType: (self: Tower, attackPrio: string) -> (),
+    SpawnUnit: (self: Tower) -> (Tower),
+    RemoveUnit: (self: Tower) -> (),
+    Move: (self: Tower, deltaTime: number) -> (Tower?),
+    Collide: (self: Tower, enemy: Enemy.Enemy) -> (boolean?, number),
+    Generate: (self: Tower) -> (number),
+    BuffTower: (self: Tower, tower: Tower) -> (),
+    UnbuffTower: (self: Tower, tower: Tower) -> ()
 }
 
 type TowerData = {
+    --All Tower Properties
     Type: string,
     Part: Part,
     Owner: Player,
@@ -23,26 +32,51 @@ type TowerData = {
     Limit: number?, --TODO: Implement tower limit
     Cost: number,
     Value: number,
-    Damage: number,
-    DamageDealt: number,
-	Range: number,
-	AttackType: string,
-	AttackPrio: string,
-	AttackSpeed: number,
-	AttackTimer: number,
-    StunTimer: number?,
-    SlowTimer: number?,
+    --Normal, Support, and Unit Properties
+    AttackPrio: string?,
+    AttackSpeed: number?,
+    AttackTimer: number?,
+    AttackType: string?,
+    Damage: number?,
+    DamageDealt: number?,
+    Range: number?,
+    MaxAmmo: number?,
+    Ammo: number?,
     SlowModifier: number?,
+    SlowTimer: number?,
+    StunTimer: number?,
+    BuffedTowers: {Tower}?, --If support tower
+    Buffs: {TowerData.Buff}?, --If support tower
+    Angle: number?, --If cone AOE
     Chain: number?, --If chain attack
     ChainRange: number?, --If chain attack
-    Angle: number?, --If cone AOE
     Radius: number?, --If circle AOE
     Width: number?, --If rectangle AOE
-    Buffs: {TowerData.Buff}?, --If support tower
-    BuffedTowers: {Tower}?, --If support tower
-	CanArmored: boolean?,
-	CanStealth: boolean?,
-	CanFlying: boolean?
+    Targets: {Enemy.Enemy}?, --If ramping tower
+    TargetArmored: boolean?,
+    TargetFlying: boolean?,
+    TargetStealth: boolean?,
+    --Eco Tower Properties
+    IncomeGenerated: number?,
+    Income: number?,
+    --Spawner Tower Properties
+    SpawnSpeed: number?,
+    SpawnTimer: number?,
+    SpawnType: string?,
+    Units: {Tower}?,
+    --Unit Properties
+    Distance: number?,
+    Health: number?,
+    --Index: number?,
+    MaxHealth: number?,
+    Spawner: Tower?,
+    Speed: number?,
+    SpeedModifier: number?,
+    --UnitIndex: number?,
+    Waypoint: number?,
+    Flying: boolean?,
+    Slowed: boolean?,
+    Stunned: boolean?
 }
 
 export type Tower = typeof(setmetatable({} :: TowerData, {} :: TowerFunctions))
@@ -84,18 +118,26 @@ local function updateAmmo(self: Tower)
 end
 
 local function setAttributes(self: Tower)
-    self.Part:SetAttribute("AttackSpeed", self.AttackSpeed)
-    self.Part:SetAttribute("Damage", self.Damage)
-    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
-    self.Part:SetAttribute("Level", self.Level)
-    self.Part:SetAttribute("Range", self.Range)
+    self.Part:SetAttribute("Type", self.Type)
     self.Part:SetAttribute("Value", self.Value)
     self.Part:SetAttribute("Cost", self.Cost)
-    self.Part:SetAttribute("AttackPrio", self.AttackPrio)
+    self.Part:SetAttribute("Level", self.Level)
+    if self.Type == "Spawner" then
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+    elseif self.Type == "Eco" then
+        self.Part:SetAttribute("Income", self.Income)
+        self.Part:SetAttribute("IncomeGenerated", self.IncomeGenerated)
+    else
+        self.Part:SetAttribute("AttackSpeed", self.AttackSpeed)
+        self.Part:SetAttribute("Damage", self.Damage)
+        self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+        self.Part:SetAttribute("Range", self.Range)
+        self.Part:SetAttribute("AttackPrio", self.AttackPrio)
+    end
 end
 
 local targetFunctions = {
-    Melee = function() return nil end,
+    Nah = function() return nil end,
 
     First = function(self: Tower)
         for _, enemy in EnemyService.DistanceSort do
@@ -130,7 +172,7 @@ local targetFunctions = {
 }
 
 local attackFunctions = {
-    Support = function() return 0 end,
+    Nah = function() return 0 end,
 
     Direct = function(self: Tower, target: Enemy.Enemy)
         self.AttackTimer = tick()
@@ -245,7 +287,9 @@ function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (
     self.Attack = attackFunctions[self.AttackType]
     self.FindTarget = targetFunctions[self.AttackPrio]
     self.Part = game.ServerStorage.Towers[self.Name]:Clone()
-    self.Part.Range.Size = Vector3.new(self.Range * 2, 0.1, self.Range * 2)
+    if self.Type == "Tower" then
+        self.Part.Range.Size = Vector3.new(0.1, self.Range * 2, self.Range * 2)
+    end
     self.Part.Parent = workspace.Towers
     self.Part.CFrame = CFrame.new(position)
     setAttributes(self)
@@ -275,13 +319,84 @@ function Tower:CheckRange(object: (Enemy.Enemy | Tower) ): (boolean)
     end
 end
 
-function Tower:FindTarget(): (Enemy.Enemy?)
-    return targetFunctions[self.AttackPrio](self)
-end
-
 function Tower:ChangeTargetType(attackPrio: string): ()
     self.FindTarget = targetFunctions[attackPrio]
     return
+end
+
+function Tower:SpawnUnit(): (Tower)
+    self.SpawnTimer = tick()
+    local unit: Tower = Tower.new(self.SpawnType, self.Level)
+    unit.Spawner = self
+    table.insert(self.Units, unit)
+    return unit
+end
+
+function Tower:RemoveUnit(): ()
+    local unit: Tower = self.Units[1]
+    table.remove(self.Units, 1)
+    self.DamageDealt += unit.DamageDealt
+    self.Part:SetAttribute("DamageDealt", self.DamageDealt)
+    unit:Destroy()
+    return
+end
+
+function Tower:Move(deltaTime: number): (Tower?)
+	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
+	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
+	local direction: Vector3 = waypoint - self.Part.Position
+	local waypointDistance: number = direction.Magnitude
+	local normalized: Vector3 = direction / waypointDistance
+
+	if moveDistance < waypointDistance then
+		self.Part.Position = self.Part.Position + normalized * moveDistance
+		self.Distance = (Maps.Waypoints[self.Waypoint + 1] - self.Part.Position).Magnitude
+		return self
+	else
+		if Maps.Waypoints[self.Waypoint - 1] then
+			self.Waypoint -= 1
+			self.Part.Position = waypoint
+
+			local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
+			local moveDistance: number = moveDistance - waypointDistance
+			local direction: Vector3 = waypoint - self.Part.Position
+			local waypointDistance: number = direction.Magnitude
+			local normalized: Vector3 = direction / waypointDistance
+			
+			self.Part.Position = self.Part.Position + normalized * moveDistance
+			self.Distance = (Maps.Waypoints[self.Waypoint + 1] - self.Part.Position).Magnitude
+			return self
+		else
+			self.Part.Position = waypoint
+			return nil
+		end
+	end
+end
+
+function Tower:Collide(enemy: Enemy.Enemy): (boolean?, number)
+	if self.Health > enemy.Health then
+		local value: number = enemy.Health
+		self.Health -= value
+		self.DamageDealt += value
+		enemy:ChangeHealth(enemy.Health)
+		self.Part:SetAttribute("Health", self.Health)
+		return true, value
+	else
+		local result: Enemy.Enemy?, value: number = enemy:ChangeHealth(self.Health)
+		self.DamageDealt += self.Health
+		self.Health = 0
+		if result == nil then
+			return nil, value
+		else
+			return false, value
+		end
+	end
+end
+
+function Tower:Generate(): (number)
+    self.IncomeGenerated += self.Income
+    self.Part:SetAttribute("IncomeGenerated", self.IncomeGenerated)
+    return self.Income
 end
 
 function Tower:BuffTower(tower: Tower)
