@@ -40,6 +40,7 @@ type TowerData = {
     Damage: number?,
     DamageDealt: number?,
     Range: number?,
+    ReloadSpeed: number?,
     MaxAmmo: number?,
     Ammo: number?,
     SlowModifier: number?,
@@ -110,7 +111,7 @@ end
 
 local function updateAmmo(self: Tower)
     if self.Ammo == 0 then
-        self.AttackTimer = tick() + self.ReloadTime
+        self.AttackTimer = tick() + self.ReloadSpeed
         self.Ammo = self.MaxAmmo
     else
         self.Ammo -= 1
@@ -298,13 +299,18 @@ function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (
 end
 
 function Tower:Destroy(): ()
-	self.Part:Destroy()
+    if self.Type == "Spawner" then
+        for _, unit in self.Units do
+            unit:Destroy()
+        end
+    end
     if self.BuffedTowers then
         for i = #self.BuffedTowers, 1, -1 do
             local tower = self.BuffedTowers[i]
             self:UnbuffTower(tower)
         end
     end
+	self.Part:Destroy()
 	setmetatable(self, nil)
 	table.clear(self)
 	table.freeze(self)
