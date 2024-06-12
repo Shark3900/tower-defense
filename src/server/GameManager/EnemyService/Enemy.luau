@@ -1,6 +1,6 @@
 --!strict
 --#region Requires & Types
-local EnemyData = require(script.EnemyData)
+local EnemyData = require(script.Parent.EnemyData)
 local Maps = require(script.Parent.Maps)
 local Enemy = {}
 Enemy.__index = Enemy
@@ -20,6 +20,7 @@ type EnemyData = {
 	Speed: number,
 	SpeedModifier: number,
 	Value: number,
+	Path: number,
 	Waypoint: number,
 	Distance: number,
 	Index: number,
@@ -37,14 +38,15 @@ export type Enemy = typeof(setmetatable({} :: EnemyData, {} :: EnemyFunctions))
 --#endregion
 
 --#region Functions
-function Enemy.new(enemyName: string): (Enemy)
+function Enemy.new(enemyName: string, path: number): (Enemy)
 	local self = table.clone(EnemyData[enemyName])
 	self.Health = self.MaxHealth
+	self.Path = path
 	self.Part = game.ServerStorage.Enemies[enemyName]:Clone()
 	self.Part:SetAttribute("Health", self.Health)
 	self.Part.Healthbar.Health.Text = self.Health
 	self.Part.Healthbar.Enabled = true
-	self.Part.Position = Maps.Waypoints[1]
+	self.Part.Position = Maps.Map[path].Waypoints[1]
 	self.Part.Parent = workspace.Enemies
 
 	self.Part:GetAttributeChangedSignal("Health"):Connect(function()
@@ -63,7 +65,7 @@ function Enemy:Destroy(): ()
 end
 
 function Enemy:Move(deltaTime: number): (Enemy?)
-	local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
+	local waypoint: Vector3 = Maps.Map[self.Path].Waypoints[self.Waypoint]
 	local moveDistance: number = deltaTime * self.Speed * self.SpeedModifier
 	local direction: Vector3 = waypoint - self.Part.Position
 	local waypointDistance: number = direction.Magnitude
@@ -85,11 +87,11 @@ function Enemy:Move(deltaTime: number): (Enemy?)
 		self.Distance = waypointDistance
 		return self
 	else
-		if Maps.Waypoints[self.Waypoint + 1] then
+		if Maps.Map[self.Path].Waypoints[self.Waypoint + 1] then
 			self.Waypoint += 1
 			self.Part.Position = waypoint
 
-			local waypoint: Vector3 = Maps.Waypoints[self.Waypoint]
+			local waypoint: Vector3 = Maps.Map[self.Path].Waypoints[self.Waypoint]
 			local moveDistance = moveDistance - waypointDistance
 			local direction: Vector3 = waypoint - self.Part.Position
 			local waypointDistance: number = direction.Magnitude

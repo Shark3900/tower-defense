@@ -28,6 +28,7 @@ local function selectPlacedTower(actionName, inputState, _inputObject): ()
         local target = mouse.Target
         if target and target.Parent.Name == "Towers" and target:GetAttribute("Owner") == player.Name then
             if selectedTower ~= nil then
+                UIHandler.hideTowerUI()
                 selectedTower.Range.Transparency = 1
             end
             selectedTower = target

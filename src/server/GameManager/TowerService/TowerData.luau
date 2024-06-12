@@ -18,48 +18,51 @@ export type TowerTemplate = {
     Cost: number,
     Value: number,
     --Normal, Support, and Unit Properties
-    Damage: number?,
-    DamageDealt: number?,
-    Range: number?,
-    AttackType: string?,
     AttackPrio: string?,
     AttackSpeed: number?,
     AttackTimer: number?,
-    StunTimer: number?,
-    SlowTimer: number?,
+    AttackType: string?,
+    Damage: number?,
+    DamageDealt: number?,
+    Range: number?,
+    ReloadSpeed: number?,
+    MaxAmmo: number?,
+    Ammo: number?,
     SlowModifier: number?,
+    SlowTimer: number?,
+    StunTimer: number?,
+    BuffedTowers: {}?, --If support tower
+    Buffs: Buff?, --If support tower
     Angle: number?, --If cone AOE
-    Radius: number?, --If circle AOE
-    Width: number?, --If rectangle AOE
     Chain: number?, --If chain attack
     ChainRange: number?, --If chain attack
-    Buffs: {Buff}?, --If support tower
-    BuffedTowers: {}?, --If support tower
+    Radius: number?, --If circle AOE
+    Width: number?, --If rectangle AOE
     Targets: {}?, --If ramping tower
     TargetArmored: boolean?,
-    TargetStealth: boolean?,
     TargetFlying: boolean?,
+    TargetStealth: boolean?,
     --Eco Tower Properties
-    Income: number?,
     IncomeGenerated: number?,
+    Income: number?,
     --Spawner Tower Properties
-    SpawnType: string?,
+    Path: number?,
     SpawnSpeed: number?,
     SpawnTimer: number?,
+    SpawnType: string?,
     Units: {}?,
     --Unit Properties
-    Spawner: {}?,
-    MaxHealth: number?,
+    Path: number?,
+    Distance: number?,
     Health: number?,
+    MaxHealth: number?,
+    Spawner: {}?,
     Speed: number?,
     SpeedModifier: number?,
     Waypoint: number?,
-    Distance: number?,
-    Index: number?,
-    UnitIndex: number?,
-    Stunned: boolean?,
+    Flying: boolean?,
     Slowed: boolean?,
-    Flying: boolean?
+    Stunned: boolean?
 }
 
 local towerDefaults = {
@@ -76,6 +79,7 @@ local towerDefaults = {
 local spawnerDefaults = {
     Type = "Spawner",
     Level = 1,
+    Path = 1,
     DamageDealt = 0,
     SpawnTimer = 0,
     Units = {}

@@ -12,6 +12,8 @@ local healthCounter = playerHUD.HealthCounter.Counter
 local towerCounter = playerHUD.TowerCounter.Counter
 local towerSelect = playerHUD.Towers
 local towerUI = playerHUD.TowerUI
+local towerStats = towerUI.TowerStats
+local ecoStats = towerUI.EcoStats
 
 local function updateCashCounter()
     cashCounter.Text = player:GetAttribute("Cash")
@@ -35,18 +37,25 @@ end
 
 function UIHandler.createTowerUI(tower)
     towerUI.TowerName.Text = `{tower.Name} {tower:GetAttribute("Level")}`
-    towerUI.Damage.Text = `Damage: {tower:GetAttribute("Damage")}`
-    towerUI.AttackSpeed.Text = `AttackSpeed: {tower:GetAttribute("AttackSpeed")}`
-    towerUI.Range.Text = `Range: {tower:GetAttribute("Range")}`
-    towerUI.DamageDealt.Text = `DamageDealt: {tower:GetAttribute("DamageDealt")}`
-    --towerUI.TowerCost.Text = tower.Cost
-    --towerUI.TowerValue.Text = tower.Value
+    if tower:GetAttribute("Type") == "Tower" then
+        towerStats.Damage.Text = `Damage: {tower:GetAttribute("Damage")}`
+        towerStats.AttackSpeed.Text = `AttackSpeed: {tower:GetAttribute("AttackSpeed")}`
+        towerStats.Range.Text = `Range: {tower:GetAttribute("Range")}`
+        towerStats.DamageDealt.Text = `DamageDealt: {tower:GetAttribute("DamageDealt")}`
+        towerStats.Visible = true
+    elseif tower:GetAttribute("Type") == "Eco" then
+        ecoStats.Income.Text = `Income: {tower:GetAttribute("Income")}`
+        ecoStats.IncomeGenerated.Text = `IncomeGenerated: {tower:GetAttribute("IncomeGenerated")}`
+        ecoStats.Visible = true
+    end
     towerUI.Visible = true
     return
 end
 
 function UIHandler.hideTowerUI()
     towerUI.Visible = false
+    towerStats.Visible = false
+    ecoStats.Visible = false
     return
 end
 

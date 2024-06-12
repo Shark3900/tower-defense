@@ -28,9 +28,9 @@ local function attack(tower: Tower.Tower): (number)
     if tick() - tower.AttackTimer > tower.AttackSpeed then
         local target = tower:FindTarget()
         if target then
-if tower.Type == "Tower" then
-            tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
-end
+            if tower.Type == "Tower" then
+                tower.Part.CFrame = CFrame.lookAt(tower.Part.Position, target.Part.Position)
+            end
             damage += tower:Attack(target)
             EnemyService.sortHealth()
         end

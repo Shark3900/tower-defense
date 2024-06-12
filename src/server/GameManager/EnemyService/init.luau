@@ -31,6 +31,7 @@ EnemyService.DistanceSort = {}
 EnemyService.EnemyQueue = {}
 EnemyService.EnemyRemoveQueue = {}
 EnemyService.WaveDebounce = 0
+EnemyService.Paths = 1
 local waveIndex: number = 0
 local spawnTimer: number = 0
 --#endregion
@@ -38,15 +39,15 @@ local spawnTimer: number = 0
 --#region Functions
 function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 	waveIndex += 1
-	if Waves[waveIndex] then
-		local wave: {Waves.Group} = Waves[waveIndex]
+	if Waves[EnemyService.Paths][waveIndex] then
+		local wave: {Waves.Group} = Waves[EnemyService.Paths][waveIndex]
 
 		for _, group in wave do
 			for x = 1, group.Amount do
     	        if x == 1 then
-    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Delay = group.UnitDelay + group.GroupDelay})
+    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Path = group.Path, Delay = group.UnitDelay + group.GroupDelay})
     	        else
-    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Delay = group.UnitDelay})
+    	            table.insert(EnemyService.EnemyQueue, {Name = group.Name, Path = group.Path, Delay = group.UnitDelay})
     	        end
 			end
 		end
@@ -58,12 +59,12 @@ function EnemyService.nextWave(): ({{Name: string, Delay: number}}?)
 end
 
 function EnemyService.spawnEnemy(): ()
-	local enemy: {Name: string, Delay: number} = EnemyService.EnemyQueue[1]
+	local enemy: {Name: string, Path: number, Delay: number} = EnemyService.EnemyQueue[1]
     local debounce = enemy.Delay
 
     if tick() - spawnTimer > debounce then
         spawnTimer = tick()
-        local newEnemy: Enemy.Enemy = Enemy.new(enemy.Name)
+        local newEnemy: Enemy.Enemy = Enemy.new(enemy.Name, enemy.Path)
         table.insert(EnemyService.Enemies, newEnemy)
         newEnemy.Index = #EnemyService.Enemies
         table.insert(EnemyService.HealthSort, newEnemy)

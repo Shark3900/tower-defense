@@ -61,19 +61,19 @@ type TowerData = {
     IncomeGenerated: number?,
     Income: number?,
     --Spawner Tower Properties
+    Path: number?,
     SpawnSpeed: number?,
     SpawnTimer: number?,
     SpawnType: string?,
     Units: {Tower}?,
     --Unit Properties
+    Path: number?,
     Distance: number?,
     Health: number?,
-    --Index: number?,
     MaxHealth: number?,
     Spawner: Tower?,
     Speed: number?,
     SpeedModifier: number?,
-    --UnitIndex: number?,
     Waypoint: number?,
     Flying: boolean?,
     Slowed: boolean?,
@@ -282,7 +282,7 @@ local attackFunctions = {
 --#endregion
 
 --#region Functions
-function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3): (Tower)
+function Tower.new(towerTemplate: TowerData.TowerTemplate, position: Vector3, path: number?): (Tower)
     local self =  setmetatable(table.clone(towerTemplate), Tower) :: Tower
 
     self.Attack = attackFunctions[self.AttackType]
@@ -326,13 +326,32 @@ function Tower:CheckRange(object: (Enemy.Enemy | Tower) ): (boolean)
 end
 
 function Tower:ChangeTargetType(attackPrio: string): ()
-    self.FindTarget = targetFunctions[attackPrio]
+    if attackPrio == "First" or attackPrio == "Strong" or attackPrio == "Last" then
+        self.FindTarget = targetFunctions[attackPrio]
+    end
+
+    return
+end
+
+function Tower:ChangePathType(increment: boolean): ()
+    local path = self.Path
+
+    if increment then
+        path += 1
+    else
+        path -= 1
+    end
+
+    if Maps[path] then
+        self.Path = path
+    end
+
     return
 end
 
 function Tower:SpawnUnit(): (Tower)
     self.SpawnTimer = tick()
-    local unit: Tower = Tower.new(self.SpawnType, self.Level)
+    local unit: Tower = Tower.new(self.SpawnType, self.Level, self.Path)
     unit.Spawner = self
     table.insert(self.Units, unit)
     return unit
